@@ -1,4 +1,9 @@
-﻿[<EntryPoint>]
+﻿
+open Block
+
+[<EntryPoint>]
 let main argv = 
-    printfn "%A" argv
-    0 // return an integer exit code
+    let block = Block.create
+    let rotated = Block.exits block |> Block.rotate 2
+    printfn "%A" <| Block.vect rotated
+    0 

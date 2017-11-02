@@ -1,15 +1,26 @@
 module Block
 
+open Constants
+
+// vim: set sw=4 ts=4 et:
+
 type ExitVect =
     private {
-        vect : int16
+        vect : int64
     }
 
 type Block =
     private {
-        exitVect : ExitVect
+        exits : ExitVect
     }
+    
+let create = 
+    { exits = { vect = 0L } }
 
-let exits (b : Block) = b.exitVect
+let exits (b : Block) = b.exits
 
-// vim: set sw=4 ts=4 et:
+let rotate (i : int) (v : ExitVect) = 
+    v
+
+let vect(v : ExitVect) = 
+    v.vect
