@@ -41,4 +41,4 @@ val concat : (seq<ExitVect> -> ExitVect)
 //  0;0]
 //  Note that the second vector must have length 4*BlockSize (unlike in the
 //  example), and the first must have a length divisable in BlockSize
-val fit : (ExitVect -> ExitVect -> int Option), and the first must have a length divisable in BlockSize
+val fit : (ExitVect -> ExitVect -> int Option)
