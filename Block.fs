@@ -15,12 +15,14 @@ type Block =
     }
 
 let create = 
-    { exits = { vect = [] } }
+    { exits = { vect = [true; false; false; false; false; false; false; false;] } }
 
 let exits (b : Block) = b.exits
 
-let rotate (i : int) (v : ExitVect) = 
-    v
+let rec rotate (i : int) (v : ExitVect) = 
+    let a = List.take (Constants.BlockSize*i) v.vect
+    let b = List.skip (Constants.BlockSize*i) v.vect    
+    { vect = List.append b a }
 
 let north (v : ExitVect) : ExitVect =
     let v' = List.take BlockSize v.vect
