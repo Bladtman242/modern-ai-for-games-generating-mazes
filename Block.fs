@@ -19,7 +19,7 @@ let create =
 
 let exits (b : Block) = b.exits
 
-let rec rotate (i : int) (v : ExitVect) = 
+let rotate (i : int) (v : ExitVect) = 
     let a = List.take (Constants.BlockSize*i) v.vect
     let b = List.skip (Constants.BlockSize*i) v.vect    
     { vect = List.append b a }
@@ -29,7 +29,7 @@ let north (v : ExitVect) : ExitVect =
     { vect = v' }
 
 let east (v : ExitVect) : ExitVect =
-    let v' = List.take BlockSize (rotate 3 v).vect
+    let v' = List.take BlockSize (rotate 1 v).vect
     { vect = v' }
 
 let south (v : ExitVect) : ExitVect =
@@ -37,7 +37,7 @@ let south (v : ExitVect) : ExitVect =
     { vect = v' }
 
 let west (v : ExitVect) : ExitVect =
-    let v' = List.take BlockSize (rotate 1 v).vect
+    let v' = List.take BlockSize (rotate 3 v).vect
     { vect = v' }
 
 let append (v1 : ExitVect) (v2 : ExitVect) : ExitVect =
@@ -51,32 +51,34 @@ let concat (vs : seq<ExitVect>) =
     { vect = newVect }
 
 
-let rec fit (frame : ExitVect) (toFit : ExitVect) =
-    // Helper function that determines if f contains tf, skipping
-    // Constants.BlockSize elements of f between checks.
-    let rec containsList (f : bool list) (tf : bool list) (rotations : int) =
-        let fLength = List.length f
-        let tfLength = List.length tf
-        printfn "inputs %A and %A" f tf
-        match f, tf with
-        | f, tf when tfLength >= fLength ->
-            printfn "comparing %A to %A" (List.take fLength tf) f
-            if List.take fLength tf = f
-            then Some(rotations)
-            else containsList f (List.skip BlockSize tf) (rotations + 1)
-        | _ ->
-            printfn "Just none"
-            None
+let rec fit (frame : ExitVect) (sides : bool list) (toFit : ExitVect) : int option =
 
-    // Grab the actual vectors from the module wrapper,
-    // pad the frame with itself, so that the contains function can consider
-    // all rotations
-    let f = frame.vect
-    let tf = toFit.vect
-    if List.length f > BlockSize * 4
-       || List.length f % BlockSize <> 0
-       || List.length tf <> BlockSize * 4
-    then raise (System.ArgumentException "You're probably not using this function like you think you are")
-    let tfPadded = List.append tf (List.take BlockSize tf)
-    containsList f tfPadded 0
+    // Helper function to check if there's a match
+    // It's tail recursive. Sorry for the short names
+    let rec matches a b m c =
+        match a with
+        | [] -> c
+        | x::xs -> 
+            match b with
+            | [] -> raise (System.ArgumentException "ExitsVects are somehow not the same length")
+            | y::ys -> 
+                match m with
+                | [] -> raise (System.ArgumentException "ExitsVects are somehow not the same length")
+                | z::zs -> 
+                    matches xs ys zs (c && (not z || y = x))
+
+    // Create the mask
+    let maskSide value = List.init Constants.BlockSize (fun i -> value)
+    let mask = List.concat [for s in sides -> maskSide s]
+    
+    // Helper function that rotates the block if it doesn't match
+    let rec tryMatching i block =
+        if i = 4 
+        then None
+        else
+            if matches frame.vect block.vect mask true
+            then Some(i)
+            else tryMatching (i+1) <| rotate 1 block
+    
+    tryMatching 0 toFit
 
