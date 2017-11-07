@@ -59,13 +59,13 @@ let print (b : Block) : string list =
             | (1,0) -> if isWall x y then "\u2501" else " " 
             | (0,0) -> 
                 match (y=0, x=0, y=n, x=n) with 
-                | (true,false,false,false) -> "\u2533"
+                | (true,false,false,false) -> if isWall x (y+1) then "\u2533" else "\u2501"
                 | (true,false,false,true) -> "\u2513"
-                | (false,false,false,true) -> "\u252B"
+                | (false,false,false,true) -> if isWall (x-1) y then "\u252B" else "\u2503"
                 | (false,false,true,true) -> "\u251B"
-                | (false,false,true,false) -> "\u253B"
+                | (false,false,true,false) -> if isWall x (y-1) then "\u253B" else "\u2501"
                 | (false,true,true,false) -> "\u2517"
-                | (false,true,false,false) -> "\u2523"
+                | (false,true,false,false) -> if isWall (x+1) y then "\u2523" else "\u2503"
                 | (true,true,false,false) -> "\u250F"
                 | (_,_,_,_) -> 
                     match (isWall (x-1) y, isWall x (y-1), isWall (x+1) y, isWall x (y+1)) with
@@ -83,7 +83,7 @@ let print (b : Block) : string list =
                     | (true, false, true, true)    -> "\u2533"
                     | (true, true, false, false)   -> "\u251B"
                     | (false, false, true, true)   -> "\u250F"
-                    | (false, false, false, false) -> " "
+                    | (false, false, false, false) -> "\u00B7"
                     | (true, true, true, true)     -> "\u254B"
             | (_,_) -> ""
         ] |> List.fold (+) ""
