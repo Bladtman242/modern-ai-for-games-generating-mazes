@@ -58,8 +58,8 @@ let fitDef (lat : Lat) (pos : LatPos) : ExitVect =
  |> Block.concat
 
 
-let fits (vect : Neighbourhood<ExitVect>) (area : bool list) (lat : Lat) (b : Block) : int list =
-    Block.fit vect area (Block.exits b)
+let fits (neigbourhood : Neighbourhood<ExitVect option>) (area : bool list) (lat : Lat) (b : Block) : int list =
+    Block.fit neigbourhood b
 
 //let place (block: Block) (pos : LatPos) (lat : Lat) Lat option =
 //    let neighbourhood = neighbourhoodLBlocks lat pos

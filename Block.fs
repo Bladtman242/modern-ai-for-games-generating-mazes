@@ -54,8 +54,12 @@ let concat (vs : seq<ExitVect>) =
     { vect = newVect }
 
 
-let rec fit (neighbourVectors : Neighbourhood<ExitVect>) (sides : bool list) (toFit : ExitVect) : int list =
-    let frame = concat [neighbourVectors.north; neighbourVectors.east; neighbourVectors.south; neighbourVectors.west]
+let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) : int list =
+    let neighbourList = [neighbourVectors.north; neighbourVectors.east; neighbourVectors.south; neighbourVectors.west]
+    let sides = List.map Option.isSome neighbourList
+    let frame = List.map Option.toList neighbourList
+             |> List.concat
+             |> concat
 
     // Helper function to check if there's a match
     // It's tail recursive. Sorry for the short names
@@ -81,5 +85,5 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect>) (sides : bool list) (to
         then Some(rot)
         else None
     
-    [for i in 0..3 -> tryMatch i toFit] |> List.choose id
+    [for i in 0..3 -> tryMatch i (exits toFit)] |> List.choose id
 
