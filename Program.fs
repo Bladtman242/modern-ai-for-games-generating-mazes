@@ -11,7 +11,7 @@ let main argv =
         match list with
         | [] -> ()
         | s :: ss -> 
-            printfn "%A" s
+            printfn "%s" s
             p ss
             
     p <| Block.print block
