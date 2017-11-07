@@ -85,4 +85,8 @@ let placeBlock (block: Block) (pos : LatPos) (lat : Lat) : Lat option =
         orientation = List.head possibleFits
     }
 
+
+let print (lat : Lat) : unit =
+    ()
+
 // vim: set sw=4 ts=4 et:
