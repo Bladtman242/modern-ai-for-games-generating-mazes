@@ -65,14 +65,8 @@ let fitDef (lat : Lat) (pos : LatPos) : ExitVect =
  |> Block.concat
 
 
-let fit (vect : ExitVect) (area : bool list) (lat : Lat) (b : Block) : LBlock option =
+let fit (vect : ExitVect) (area : bool list) (lat : Lat) (b : Block) : int option =
     Block.fit vect area (Block.exits b)
- |> Option.map (fun r ->
-     {
-        template = b
-        position = { pos = (0,0)};
-        orientation = r
-    })
 
 let addBlock (lat : Lat) (lb : LBlock) : Lat =
     let newMap = Map.add lb.position lb lat.lat
