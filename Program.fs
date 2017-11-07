@@ -3,7 +3,7 @@ open Block
 
 [<EntryPoint>]
 let main argv = 
-    System.Console.OutputEncoding <- System.Text.Encoding.Unicode
+    System.Console.OutputEncoding <- System.Text.Encoding.UTF8
 
     let block = Block.createRandom (new System.Random())
     
