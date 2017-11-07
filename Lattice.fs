@@ -65,7 +65,7 @@ let fitDef (lat : Lat) (pos : LatPos) : ExitVect =
  |> Block.concat
 
 
-let fit (vect : ExitVect) (area : bool list) (lat : Lat) (b : Block) : int option =
+let fits (vect : ExitVect) (area : bool list) (lat : Lat) (b : Block) : int list =
     Block.fit vect area (Block.exits b)
 
 let addBlock (lat : Lat) (lb : LBlock) : Lat =
