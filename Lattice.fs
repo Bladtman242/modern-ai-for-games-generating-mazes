@@ -1,5 +1,6 @@
 module Lattice
 open Block
+open Neighbourhood
 
 type Pos = int * int
 
@@ -12,14 +13,6 @@ type LatPos = { pos: Pos }
 type LBlock = { template : Block; position : LatPos; orientation : int}
 
 type Lat = { lat : Map<LatPos,LBlock> }
-
-type Neighbourhood<'a> = {
-    north : 'a;
-    east : 'a;
-    south : 'a;
-    west : 'a
-} with
-    member this.toList : 'a list = [this.north; this.east; this.south; this.west]
 
 let neighbourhood (p : LatPos) : Neighbourhood<LatPos> =
     let (x,y) = p.pos
@@ -65,8 +58,11 @@ let fitDef (lat : Lat) (pos : LatPos) : ExitVect =
  |> Block.concat
 
 
-let fits (vect : ExitVect) (area : bool list) (lat : Lat) (b : Block) : int list =
+let fits (vect : Neighbourhood<ExitVect>) (area : bool list) (lat : Lat) (b : Block) : int list =
     Block.fit vect area (Block.exits b)
+
+//let place (block: Block) (pos : LatPos) (lat : Lat) Lat option =
+//    let neighbourhood = neighbourhoodLBlocks lat pos
 
 let addBlock (lat : Lat) (lb : LBlock) : Lat =
     let newMap = Map.add lb.position lb lat.lat

@@ -1,4 +1,5 @@
 module Block
+open Neighbourhood
 
 // vim: set sw=4 ts=4 et:
 
@@ -45,4 +46,4 @@ val concat : (seq<ExitVect> -> ExitVect)
 // bloc                  [0;0;0;1;
 //                1;0;1;1]
 // mask:         [1;1;0;0;0;0;0;0]
-val fit : (ExitVect -> bool list -> ExitVect -> int list)
+val fit : (Neighbourhood<ExitVect> -> bool list -> ExitVect -> int list)

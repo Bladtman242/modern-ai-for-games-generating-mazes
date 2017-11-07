@@ -1,6 +1,7 @@
 module Block
 
 open Constants
+open Neighbourhood
 
 // vim: set sw=4 ts=4 et:
 
@@ -53,7 +54,8 @@ let concat (vs : seq<ExitVect>) =
     { vect = newVect }
 
 
-let rec fit (frame : ExitVect) (sides : bool list) (toFit : ExitVect) : int list =
+let rec fit (neighbourVectors : Neighbourhood<ExitVect>) (sides : bool list) (toFit : ExitVect) : int list =
+    let frame = concat [neighbourVectors.north; neighbourVectors.east; neighbourVectors.south; neighbourVectors.west]
 
     // Helper function to check if there's a match
     // It's tail recursive. Sorry for the short names
