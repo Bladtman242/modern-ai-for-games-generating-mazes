@@ -5,9 +5,10 @@
       <e p="App.config" t="Include" />
       <e p="AssemblyInfo.fs" t="Include" />
       <e p="bin" t="ExcludeRecursive" />
-      <e p="Constants.fs" t="Include" />
+      <e p="NeighbourHood.fs" t="Include" />
       <e p="Block.fs" t="Include" />
       <e p="Block.fsi" t="Include" />
+      <e p="Constants.fs" t="Include" />
       <e p="Lattice.fs" t="Include" />
       <e p="Lattice.fsi" t="Include" />
       <e p="Mazes.fsproj" t="IncludeRecursive" />

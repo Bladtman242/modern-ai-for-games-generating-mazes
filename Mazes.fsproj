@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="NeighbourHood.fs" />
     <Compile Include="Constants.fs" />
     <Compile Include="Block.fsi" />
     <Compile Include="Block.fs" />

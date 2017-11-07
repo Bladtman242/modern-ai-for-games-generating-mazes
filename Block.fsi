@@ -7,7 +7,7 @@ type Block
 type ExitVect
 
 // Temporary signature for creating a new block
-val create : Block
+val createRandom : System.Random -> Block
 
 // determines whether an exit vector has exits, be it a vector for a full
 // block, or one or more sides
@@ -18,6 +18,12 @@ val exits : (Block -> ExitVect)
 
 // Rotates the exit vector by 90 degrees counter-clockwise i times
 val rotate : (int -> ExitVect -> ExitVect)
+
+// The total number of possible edges
+val numEdges : int
+
+// Returns the internal graph of the maze block
+val graph : (Block -> (int*int) list)
 
 
 // Get the northerns exits
