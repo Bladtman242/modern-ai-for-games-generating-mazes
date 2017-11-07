@@ -15,8 +15,9 @@ val exits : (LBlock -> LatPos list)
 
 // List of LBlocks in the positions surrounding the given posision
 val neighbours : (Lat -> LatPos -> LBlock list)
-val fitDef : (Lat -> LatPos -> ExitVect)
-val fits : (Neighbourhood<ExitVect option> -> bool list -> Lat -> Block -> int list)
+val fitDef : (Lat -> LatPos -> Neighbourhood<ExitVect option>)
+val fits : (Neighbourhood<ExitVect option> -> Lat -> Block -> int list)
+val placeBlock : (Block -> LatPos -> Lat -> Lat option)
 val addBlock : (Lat -> LBlock -> Lat)
 
 // vim: set sw=4 ts=4 et:
