@@ -3,6 +3,8 @@ open Block
 
 [<EntryPoint>]
 let main argv = 
+    System.Console.OutputEncoding <- System.Text.Encoding.Unicode
+
     let block = Block.createRandom (new System.Random())
     let rotated = Block.exits block |> Block.rotate 3
     printfn "Full %A" <| rotated
@@ -15,5 +17,14 @@ let main argv =
     //printfn "Fits itself with rotations %A" <| matches
     
     printfn "The graph looks like this: %A" <| Block.graph block
+    
+    let rec p list =
+        match list with
+        | [] -> ()
+        | s :: ss -> 
+            printfn "%A" s
+            p ss
+            
+    p <| Block.print block
     
     0 

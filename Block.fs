@@ -29,9 +29,64 @@ let graph (b : Block) : (int*int) list =
     let n = numEdges
     [for i in 0..n-1 do
         if b.walls.Item i then
-            let a = if i < n/2 then (i/s)+i%s else i-i/2-1
+            let a = if i < n/2 then (i/s)+(i%s)*s else i-n/2
             let b = if i < n/2 then a+1 else a+s
             yield (a,b)
+    ]
+    
+let print (b : Block) : string list = 
+    let s = Constants.BlockSize
+    let n = s*2
+    let edges = graph b
+    let wall a b = List.exists (fun (i,j) -> (i = a && j = b) || (i = b && j = a)) edges
+    
+    let isWall x y = 
+        match (x%2, y%2) with
+        | (1,1) -> false
+        | (0,1) -> 
+            let i : int = ((x/2)-1) + (y/2)*s
+            x = 0 || x = n || wall i (i+1)
+        | (1,0) -> 
+            let i : int = (x/2) + (y/2-1)*s
+            y = 0 || y = n || wall i (i+s)
+        | (_,_) -> true
+    
+    [for y in 0..n ->
+        [for x in 0..n ->
+            match (x%2, y%2) with
+            | (1,1) -> " "
+            | (0,1) -> if isWall x y then "\u2503" else " "
+            | (1,0) -> if isWall x y then "\u2501" else " " 
+            | (0,0) -> 
+                match (y=0, x=0, y=n, x=n) with 
+                | (true,false,false,false) -> "\u2533"
+                | (true,false,false,true) -> "\u2513"
+                | (false,false,false,true) -> "\u252B"
+                | (false,false,true,true) -> "\u251B"
+                | (false,false,true,false) -> "\u253B"
+                | (false,true,true,false) -> "\u2517"
+                | (false,true,false,false) -> "\u2523"
+                | (true,true,false,false) -> "\u250F"
+                | (_,_,_,_) -> 
+                    match (isWall (x-1) y, isWall x (y-1), isWall (x+1) y, isWall x (y+1)) with
+                    | (true, false, false, false)  -> "\u2578"
+                    | (false, false, true, false)  -> "\u257A"
+                    | (false, true, false, false)  -> "\u2579"
+                    | (false, false, false, true)  -> "\u257B"
+                    | (true, false, true, false)   -> "\u2501"
+                    | (false, true, true, false)   -> "\u2517"
+                    | (false, true, false, true)   -> "\u2503"
+                    | (true, false, false, true)   -> "\u2513"
+                    | (true, true, true, false)    -> "\u253B"
+                    | (false, true, true, true)    -> "\u2523"
+                    | (true, true, false, true)    -> "\u252B"
+                    | (true, false, true, true)    -> "\u2533"
+                    | (true, true, false, false)   -> "\u251B"
+                    | (false, false, true, true)   -> "\u250F"
+                    | (false, false, false, false) -> " "
+                    | (true, true, true, true)     -> "\u254B"
+            | (_,_) -> ""
+        ] |> List.fold (+) ""
     ]
 
 let exits (b : Block) = b.exits

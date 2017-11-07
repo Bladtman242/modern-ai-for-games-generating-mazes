@@ -6,7 +6,7 @@ open Neighbourhood
 type Block
 type ExitVect
 
-// Temporary signature for creating a new block
+// Temporary signature for creating a random new block
 val createRandom : System.Random -> Block
 
 // determines whether an exit vector has exits, be it a vector for a full
@@ -24,6 +24,9 @@ val numEdges : int
 
 // Returns the internal graph of the maze block
 val graph : (Block -> (int*int) list)
+
+// Returns the strings to be printed to show the block
+val print : Block -> string list
 
 
 // Get the northerns exits
