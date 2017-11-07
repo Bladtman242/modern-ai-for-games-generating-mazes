@@ -8,6 +8,10 @@ type ExitVect
 // Temporary signature for creating a new block
 val create : Block
 
+// determines whether an exit vector has exits, be it a vector for a full
+// block, or one or more sides
+val hasExit : (ExitVect -> bool)
+
 // Returns the vector of exits for the block
 val exits : (Block -> ExitVect)
 

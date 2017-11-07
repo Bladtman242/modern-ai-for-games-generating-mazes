@@ -19,6 +19,8 @@ let create =
 
 let exits (b : Block) = b.exits
 
+let hasExit (ev : ExitVect) : bool = List.exists id ev.vect
+
 let rotate (i : int) (v : ExitVect) = 
     let a = List.take (Constants.BlockSize*i) v.vect
     let b = List.skip (Constants.BlockSize*i) v.vect    
