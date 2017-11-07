@@ -39,10 +39,10 @@ val concat : (seq<ExitVect> -> ExitVect)
 // Takes to exitvectors; one representing the environment to match
 // against and one representing the block that is to be matched, and a list of sides to match
 // Returns the minimum number of rotations needed to make the second vector fit the first. None if no fit exists
-// eg for blocksize = 2, fit [1;0;0;0;0;0;0;0] [0;0;0;1;1;0;1;1] [true;false;false;false] should return Some(2),
+// eg for blocksize = 2, fit [1;0;0;0;0;0;0;0] [true;false;false;false] [0;0;0;1;1;0;1;1] should return Some(2),
 // because two rotations lines them up like this:
 // env:          [1;0;0;0;0;0;0;0]
 // bloc                  [0;0;0;1;
 //                1;0;1;1]
 // mask:         [1;1;0;0;0;0;0;0]
-val fit : (ExitVect -> bool list -> ExitVect -> int option)
+val fit : (ExitVect -> bool list -> ExitVect -> int list)
