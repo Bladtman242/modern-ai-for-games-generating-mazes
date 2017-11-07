@@ -3,7 +3,7 @@ open Block
 
 [<EntryPoint>]
 let main argv = 
-    let block = Block.create
+    let block = Block.createRandom (new System.Random())
     let rotated = Block.exits block |> Block.rotate 3
     printfn "Full %A" <| rotated
     printfn "North %A" <| Block.north rotated
@@ -13,5 +13,7 @@ let main argv =
     
     let matches = Block.fit (Block.exits block) [true;false;false;false] rotated
     printfn "Fits itself with rotations %A" <| matches
+    
+    printfn "The graph looks like this: %A" <| Block.graph block
     
     0 
