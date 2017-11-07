@@ -11,8 +11,8 @@ let main argv =
     printfn "South %A" <| Block.south rotated
     printfn "West %A" <| Block.west rotated
     
-    let matches = Block.fit (Block.exits block) [true;false;false;false] rotated
-    printfn "Fits itself with rotations %A" <| matches
+    //let matches = Block.fit (Block.exits block) [true;false;false;false] rotated
+    //printfn "Fits itself with rotations %A" <| matches
     
     printfn "The graph looks like this: %A" <| Block.graph block
     

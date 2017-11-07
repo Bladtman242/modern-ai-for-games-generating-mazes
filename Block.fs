@@ -28,9 +28,10 @@ let graph (b : Block) : (int*int) list =
     let s = Constants.BlockSize
     let n = numEdges
     [for i in 0..n-1 do
-        let a = if i < n/2 then (i/s)+i%s else i-i/2-1
-        let b = if i < n/2 then a+1 else a+s
-        yield (a,b)
+        if b.walls.Item i then
+            let a = if i < n/2 then (i/s)+i%s else i-i/2-1
+            let b = if i < n/2 then a+1 else a+s
+            yield (a,b)
     ]
 
 let exits (b : Block) = b.exits
