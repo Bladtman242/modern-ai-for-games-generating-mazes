@@ -53,7 +53,7 @@ let concat (vs : seq<ExitVect>) =
     { vect = newVect }
 
 
-let rec fit (frame : ExitVect) (sides : bool list) (toFit : ExitVect) : int option =
+let rec fit (frame : ExitVect) (sides : bool list) (toFit : ExitVect) : int list =
 
     // Helper function to check if there's a match
     // It's tail recursive. Sorry for the short names
@@ -74,13 +74,10 @@ let rec fit (frame : ExitVect) (sides : bool list) (toFit : ExitVect) : int opti
     let mask = List.concat [for s in sides -> maskSide s]
     
     // Helper function that rotates the block if it doesn't match
-    let rec tryMatching i block =
-        if i = 4 
-        then None
-        else
-            if matches frame.vect block.vect mask true
-            then Some(i)
-            else tryMatching (i+1) <| rotate 1 block
+    let rec tryMatch rot block =
+        if matches frame.vect (rotate rot block).vect mask true
+        then Some(rot)
+        else None
     
-    tryMatching 0 toFit
+    [for i in 0..3 -> tryMatch i toFit] |> List.choose id
 

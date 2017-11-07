@@ -12,8 +12,6 @@ let main argv =
     printfn "West %A" <| Block.west rotated
     
     let matches = Block.fit (Block.exits block) [true;false;false;false] rotated
-    match matches with
-    | Some(i) -> printfn "Fits itself with %A rotations" <| i
-    | None -> printfn "Doesn't match itself"
+    printfn "Fits itself with rotations %A" <| matches
     
     0 
