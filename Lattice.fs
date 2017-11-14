@@ -13,14 +13,16 @@ type LBlock = { template : Block; position : Pos; orientation : int}
 
 type Lat = { lat : Map<Pos,LBlock> }
 
+let LBlock b o p = { template = b; position = p; orientation = o}
+
 let exitVect ({template = b; position = _; orientation = r} : LBlock) : ExitVect =
     Block.rotate r (Block.exits b)
 
 let neighbourhood ((x,y) : Pos) : Neighbourhood<Pos> =
     {
-        north = (x,y+1);
+        north = (x,y-1);
         east =  (x+1,y);
-        south = (x,y-1);
+        south = (x,y+1);
         west =  (x-1,y)
     }
 
@@ -68,7 +70,7 @@ let fitDef (lat : Lat) (pos : Pos) : Neighbourhood<ExitVect option> =
 let fits (neigbourhood : Neighbourhood<ExitVect option>) (lat : Lat) (b : Block) : int list =
     Block.fit neigbourhood b
 
-let addBlock (lat : Lat) (lb : LBlock) : Lat =
+let addBlock (lb : LBlock) (lat: Lat) : Lat =
     let newMap = Map.add lb.position lb lat.lat
     { lat = newMap }
 
@@ -76,11 +78,10 @@ let placeBlock (block: Block) (pos : Pos) (lat : Lat) : Lat option =
     let neighbourVectors = fitDef lat pos
     let possibleFits = Block.fit neighbourVectors block
     if List.isEmpty possibleFits then None
-    else Some <| addBlock lat {
-        template = block;
-        position = pos;
-        orientation = List.head possibleFits
-    }
+    else let lb = { template = block;
+                    position = pos;
+                    orientation = List.head possibleFits }
+         Some <| addBlock lb lat
 
 let lBlockAt (pos: Pos) (lat: Lat) : LBlock option =
     Map.tryFind pos lat.lat

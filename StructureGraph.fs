@@ -1,16 +1,19 @@
 module StructureGraph
 open Graph
 
-let rnd = System.Random ()
-let blocks = List.init 100 (fun _ -> Block.createRandom rnd)
+type LatGen = (int*int) Graph -> Lattice.Lat
+type BlockPicker = Lattice.Pos -> Lattice.Lat -> Lattice.LBlock
 
-let findRot (l: Lattice.Lat) (p : Lattice.Pos) =
-    List.find (fun b -> Option.isSome <| Lattice.placeBlock b p l) blocks
+let private rnd = System.Random ()
+let private blocks = List.init 10000 (fun _ -> Block.createRandom rnd)
 
-let toLat (g: (int*int) Graph) : Lattice.Lat =
+let private rndFit (p : Lattice.Pos) (l: Lattice.Lat) =
+    let fits = List.filter (fun b -> Option.isSome <| Lattice.placeBlock b p l) blocks
+    let b = List.item (rnd.Next (List.length fits)) fits
+    Lattice.LBlock b (List.head <| Lattice.fits (Lattice.fitDef l p) l b) p
+
+let toLat (f: BlockPicker) (g: (int*int) Graph) : Lattice.Lat =
     let nodeSet = Graph.nodes g
-    Set.fold
-        (fun l p -> Option.bind (fun x -> Lattice.placeBlock (findRot x p) p x) l)
-        (Some Lattice.emptyLat)
-        nodeSet
- |> Option.get
+    Set.fold (fun l n -> Lattice.addBlock (f n l) l) Lattice.emptyLat nodeSet
+
+let toLatWithRandomBlocks : LatGen = toLat rndFit
