@@ -19,4 +19,6 @@ let main argv =
     
     ignore <| Option.map Lattice.print l1
     ignore <| Option.map Lattice.print l2
+
+    Block.print b2 0 |> List.map (printfn "%s")
     0

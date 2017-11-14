@@ -40,3 +40,6 @@ let addEdge (a : 'n) (b : 'n) (g : Graph<'n>) : Graph<'n> =
             |> Map.add b (Set.add a bAdj)
     { adjacencies = adj' }
 
+let nodes (g: 'n Graph) : 'n Set =
+    Map.toList g.adjacencies |> List.map fst |> Set.ofList
+
