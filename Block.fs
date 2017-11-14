@@ -19,6 +19,9 @@ type Block =
 let emptyExitVect = {
     vect = [for _ in 0..(Constants.BlockSize-1) -> false]
 }
+let reverseExitVect (e : ExitVect) : ExitVect = {
+    vect = List.rev e.vect
+}
     
 let numEdges = (Constants.BlockSize - 1) * Constants.BlockSize * 2
 
@@ -188,7 +191,7 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) 
     let neighbourList = [neighbourVectors.north; neighbourVectors.east; neighbourVectors.south; neighbourVectors.west]
     let sides = List.map Option.isSome neighbourList
     let frame = List.map Option.toList neighbourList
-             |> List.map (fun l -> if l = [] then [emptyExitVect] else l)
+             |> List.map (fun l -> if l = [] then [emptyExitVect] else [reverseExitVect l.Head])
              |> List.concat
              |> concat
 
@@ -212,6 +215,7 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) 
     
     // Helper function that rotates the block if it doesn't match
     let tryMatch rot block =
+        printfn "%A\n%A\n%A\n" frame.vect (rotate rot block).vect mask
         if matches frame.vect (rotate rot block).vect mask true
         then Some(rot)
         else None
