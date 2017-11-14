@@ -18,24 +18,34 @@ type Block =
     
 let numEdges = (Constants.BlockSize - 1) * Constants.BlockSize * 2
 
-let inverseGraph (b : Block) : (int*int) list =
+let rec sidify (list : 'a list) (n : int) : 'a list list =
+    if list.Length < n 
+    then [list]
+    else List.append [List.take n list] (sidify (List.skip n list) n)
+let g (p : bool -> bool) (b : Block) (r : int) : (int*int) list =
     let s = Constants.BlockSize
     let n = numEdges
+    let transform walls =
+        let sides = sidify walls s
+        let vertical = List.skip (sides.Length/2) sides |> List.map List.rev
+        let horizontal = List.take (sides.Length/2) sides |> List.rev
+        List.append vertical horizontal |> List.fold List.append []
+    let rec rot walls r =
+        if r = 0
+        then walls
+        else rot (transform walls) (r-1)
+    let walls = rot b.walls r
     [for i in 0..n-1 do
-        if b.walls.Item i then
+        if p (walls.Item i) then
             let a = if i < n/2 then (i/s)+(i%s)*s else i-n/2
             let b = if i < n/2 then a+1 else a+s
             yield (a,b)
     ]
-let graph (b : Block) : (int*int) list =
-    let s = Constants.BlockSize
-    let n = numEdges
-    [for i in 0..n-1 do
-        if not <| b.walls.Item i then
-            let a = if i < n/2 then (i/s)+(i%s)*s else i-n/2
-            let b = if i < n/2 then a+1 else a+s
-            yield (a,b)
-    ]
+    
+let inverseGraph (b : Block) (r : int) : (int*int) list =
+    g id b r
+let graph (b : Block) (r : int) : (int*int) list =
+    g not b r
     
 let exitIndex (e : int) : int =
     let n = Constants.BlockSize
@@ -47,25 +57,25 @@ let exitIndex (e : int) : int =
     | 3 -> (n-i-1) * n
     | _ -> raise (System.ArgumentException "Exit index outside range")
 
-let neighbors (b : Block) (i : int) : int list =
-    List.choose id <| (List.map (fun (a,b) -> if a = i then Some b else if b = i then Some a else None) <| graph b)
+let neighbors (b : Block) (r : int) (i : int) : int list =
+    List.choose id <| (List.map (fun (a,b) -> if a = i then Some b else if b = i then Some a else None) <| graph b r)
     
-let connectsTo (block : Block) (a : int) (b : int) : bool =
+let connectsTo (block : Block) (r : int) (a : int) (b : int) : bool =
     let rec walk todo seen =
         match todo with
         | i::is ->
             if i = b 
             then true
             else 
-                let ns = neighbors block i |> List.where (fun j -> not <| List.contains j seen)
+                let ns = neighbors block r i |> List.where (fun j -> not <| List.contains j seen)
                 walk (List.append is ns) (i :: seen)
         | [] -> false
     walk [a] []
     
-let print (b : Block) : string list = 
+let print (b : Block) (r : int) : string list = 
     let s = Constants.BlockSize
     let n = s*2
-    let edges = inverseGraph b
+    let edges = inverseGraph b r
     let wall a b = List.exists (fun (i,j) -> (i = a && j = b) || (i = b && j = a)) edges
     
     let connects x y = 
@@ -201,7 +211,7 @@ let create (rnd : System.Random) (e : bool list) : Block =
         vect = e
     }
     let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b then Some i else None) e)
-    let valid b = List.forall ((c connectsTo) exits.Head b) exits.Tail
+    let valid b = List.forall ((c connectsTo) exits.Head b 0) exits.Tail
     let mutable block = { 
         exits = exitVect;
         walls = [for _ in 0..numEdges-1 -> true]; // (rnd.Next 2) = 0

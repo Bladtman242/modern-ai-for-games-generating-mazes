@@ -14,7 +14,10 @@ let main argv =
             printfn "%s" s
             p ss
             
-    p <| Block.print block
+    p <| Block.print block 0
+    p <| Block.print block 1
+    p <| Block.print block 2
+    p <| Block.print block 3
     
     
     0 

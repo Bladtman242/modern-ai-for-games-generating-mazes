@@ -25,16 +25,12 @@ val rotate : (int -> ExitVect -> ExitVect)
 // The total number of possible edges
 val numEdges : int
 
-// Returns the internal graph of the maze block
-val graph : (Block -> (int*int) list)
-val inverseGraph : (Block -> (int*int) list)
+// Returns the internal graph of the maze block given a rotation
+val graph : Block -> int -> (int*int) list
+val inverseGraph : Block -> int -> (int*int) list
 
-// Returns the strings to be printed to show the block
-val print : Block -> string list
-
-// For internal use. Exposed for debugging
-val exitIndex : int -> int
-val connectsTo : Block -> int -> int -> bool
+// Returns the strings to be printed to show the block given a rotation
+val print : Block -> int -> string list
 
 
 // Get the northerns exits
