@@ -98,8 +98,7 @@ let toStrings (lat : Lat) : string list =
         List.init size (fun _ -> row)
     let getAsString (p : int * int) : string list =
         lBlockAtPos p lat
-     |> Option.map (fun lb -> lb.template)
-     |> Option.map Block.print
+     |> Option.map (fun lb -> Block.print lb.template lb.orientation)
      |> Option.getOrElse emptyBlock
 
     let row (y: int) ((xMin,xMax) : int*int) : string list =
