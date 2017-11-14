@@ -5,19 +5,16 @@ open Block
 let main argv = 
     System.Console.OutputEncoding <- System.Text.Encoding.UTF8
 
-    let block = Block.create (new System.Random()) [false;true;false;false ; false;false;true;false ; false;true;false;false ; false;false;false;false]
-    
-    let rec p list =
-        match list with
-        | [] -> ()
-        | s :: ss -> 
-            printfn "%s" s
-            p ss
-            
-    p <| Block.print block 0
-    p <| Block.print block 1
-    p <| Block.print block 2
-    p <| Block.print block 3
-    
-    
-    0 
+    let rnd = System.Random 1
+    let b1 = Block.createRandom rnd
+    let b2 = Block.createRandom rnd
+    let b3 = Block.createRandom rnd
+    let b4 = Block.createRandom rnd
+
+    let l1 = Lattice.placeBlock b1 (0,0) Lattice.emptyLat |> Option.get
+    let l2 = Lattice.placeBlock b2 (1,0) l1
+    let l3 = Option.bind (Lattice.placeBlock b3 (0,1)) l2
+    let l4 = Option.bind (Lattice.placeBlock b4 (1,1)) l3
+
+    ignore <| Option.map Lattice.print l4
+    0
