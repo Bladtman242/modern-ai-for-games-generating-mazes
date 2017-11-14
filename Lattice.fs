@@ -1,6 +1,7 @@
 module Lattice
 open Block
 open Neighbourhood
+open OptionExtensions
 
 type Pos = int * int
 
@@ -67,7 +68,6 @@ let fitDef (lat : Lat) (pos : LatPos) : Neighbourhood<ExitVect option> =
         west = Option.map Block.east neighbourExits.west
     }
 
-
 let fits (neigbourhood : Neighbourhood<ExitVect option>) (lat : Lat) (b : Block) : int list =
     Block.fit neigbourhood b
 
@@ -85,8 +85,38 @@ let placeBlock (block: Block) (pos : LatPos) (lat : Lat) : Lat option =
         orientation = List.head possibleFits
     }
 
+let lBlockAt (pos: LatPos) (lat: Lat) : LBlock option =
+    Map.tryFind pos lat.lat
 
-let print (lat : Lat) : unit =
-    ()
+let lBlockAtPos (pos : Pos) (lat: Lat) : LBlock option =
+    lBlockAt { pos = pos} lat
+
+let toStrings (lat : Lat) : string list =
+    let size = Constants.BlockSize * 2 + 1
+    let emptyBlock =
+        let row = String.init size (fun _ -> " ")
+        List.init size (fun _ -> row)
+    let getAsString (p : int * int) : string list =
+        lBlockAtPos p lat
+     |> Option.map (fun lb -> lb.template)
+     |> Option.map Block.print
+     |> Option.getOrElse emptyBlock
+
+    let row (y: int) ((xMin,xMax) : int*int) : string list =
+        let blockStrings : string list list =
+            [ for x in [xMin..xMax] do
+                yield getAsString (x,y)
+            ]
+        List.reduce (List.map2 (+)) blockStrings
+
+    let coords : (int*int) list = Map.toList lat.lat |> List.map fst |> List.map (fun lp -> lp.pos)
+    let minX = List.minBy fst coords |> fst
+    let maxX = List.maxBy fst coords |> fst
+    let minY = List.minBy snd coords |> snd
+    let maxY = List.maxBy snd coords |> snd
+    [ for y in [minY..maxY] do
+        yield! row y (minX,maxX) ]
+
+let print (lat: Lat) = List.iter (printfn "%s") (toStrings lat)
 
 // vim: set sw=4 ts=4 et:

@@ -11,6 +11,7 @@ val emptyLat : Lat
 
 // Prints the lattice to the console
 val print : Lat -> unit
+val toStrings : Lat -> string list
 
 // list of lattice positions the LBlock has exits to, regardless of whether or
 // not there are blocks in those positions
