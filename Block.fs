@@ -48,7 +48,7 @@ let exitIndex (e : int) : int =
     | _ -> raise (System.ArgumentException "Exit index outside range")
 
 let neighbors (b : Block) (i : int) : int list =
-    List.map snd <| (List.where (fun (a,_) -> a = i) <| graph b)
+    List.choose id <| (List.map (fun (a,b) -> if a = i then Some b else if b = i then Some a else None) <| graph b)
     
 let connectsTo (block : Block) (a : int) (b : int) : bool =
     let rec walk todo seen =
@@ -68,6 +68,8 @@ let print (b : Block) : string list =
     let edges = inverseGraph b
     let wall a b = List.exists (fun (i,j) -> (i = a && j = b) || (i = b && j = a)) edges
     
+    let connects x y = 
+        connectsTo b 4 (x/2+y/2*s)
     let isWall x y = 
         match (x%2, y%2) with
         | (1,1) -> false
@@ -200,14 +202,31 @@ let create (rnd : System.Random) (e : bool list) : Block =
     }
     let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b then Some i else None) e)
     let valid b = List.forall ((c connectsTo) exits.Head b) exits.Tail
-    let block = fun () -> { 
-                            exits = exitVect;
-                            walls = [for _ in 0..numEdges-1 -> (rnd.Next 2) = 0];
-                          }
+    let mutable block = { 
+        exits = exitVect;
+        walls = [for _ in 0..numEdges-1 -> true]; // (rnd.Next 2) = 0
+    }
     
-    let mutable b = block ()
+    // Remove walls until a valid block is found
+    while not <| valid block do
+        let walls = List.choose id <| List.mapi (fun i v -> if v then Some i else None) block.walls
+        let flip = List.item (rnd.Next walls.Length) walls
+        block <- {
+            exits = block.exits
+            walls = List.mapi (fun i v -> if i = flip then not v else v) block.walls 
+        }
     
-    while not <| valid b do
-        b <- block ()
-    b
+    let mutable result = block
+    // Add walls back until no longer valid
+//    while valid block do
+//        let walls = List.choose id <| List.mapi (fun i v -> if v then None else Some i) block.walls
+//        let flip = List.item (rnd.Next walls.Length) walls
+//        let b = {
+//            exits = block.exits
+//            walls = List.mapi (fun i v -> if i = flip then not v else v) block.walls 
+//        }
+//        result <- block
+//        block <- b
+//    
+    result
 

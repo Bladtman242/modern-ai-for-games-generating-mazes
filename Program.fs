@@ -5,7 +5,7 @@ open Block
 let main argv = 
     System.Console.OutputEncoding <- System.Text.Encoding.UTF8
 
-    let block = Block.create (new System.Random()) [false;true;false ; false;false;false ; false;true;false ; false;false;false]
+    let block = Block.create (new System.Random()) [false;true;false;false ; false;false;true;false ; false;true;false;false ; false;false;false;false]
     
     let rec p list =
         match list with
