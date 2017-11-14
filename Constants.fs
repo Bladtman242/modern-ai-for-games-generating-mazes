@@ -1,4 +1,4 @@
 module Constants
 
 [<Literal>]
-let BlockSize = 2
+let BlockSize = 3
