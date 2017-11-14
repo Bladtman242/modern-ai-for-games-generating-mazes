@@ -23,6 +23,26 @@ let createRandom (rnd : System.Random) : Block =
         exits = { vect = [for _ in 0..(Constants.BlockSize*4)-1 -> (rnd.Next 2) = 0] };
         walls = [for _ in 0..numEdges-1 -> (rnd.Next 2) = 0];
     }
+    
+let create (rnd : System.Random) (e : ExitVect) : Block = 
+    
+    { 
+        exits = e;
+        walls = [for _ in 0..numEdges-1 -> (rnd.Next 2) = 0];
+    }
+
+let exitIndex (e : int) : int =
+    let n = Constants.BlockSize
+    let i = e%n
+    match e/n with
+    | 0 -> i
+    | 1 -> n-1+i*n
+    | 2 -> n*n-1-i
+    | 3 -> (n-i-1) * n
+    | _ -> raise (System.ArgumentException "Exit index outside range")
+    
+let connectsTo (a : int) (b : int) : bool =
+    false
 
 let graph (b : Block) : (int*int) list =
     let s = Constants.BlockSize

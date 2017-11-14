@@ -16,4 +16,6 @@ let main argv =
             
     p <| Block.print block
     
+    printfn "%A" <| List.map Block.exitIndex [for i in 0..(Constants.BlockSize*4-1) -> i]
+    
     0 

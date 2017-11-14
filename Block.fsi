@@ -9,6 +9,9 @@ type ExitVect
 // Temporary signature for creating a random new block
 val createRandom : System.Random -> Block
 
+// Temporary signature for creating a random new block
+val create : System.Random -> ExitVect -> Block
+
 // determines whether an exit vector has exits, be it a vector for a full
 // block, or one or more sides
 val hasExit : (ExitVect -> bool)
@@ -27,6 +30,10 @@ val graph : (Block -> (int*int) list)
 
 // Returns the strings to be printed to show the block
 val print : Block -> string list
+
+// For internal use. Exposed for debugging
+val exitIndex : int -> int
+val connectsTo : int -> int -> bool
 
 
 // Get the northerns exits
