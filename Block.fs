@@ -47,6 +47,11 @@ let inverseGraph (b : Block) (r : int) : (int*int) list =
 let graph (b : Block) (r : int) : (int*int) list =
     g not b r
     
+let rotate (i : int) (v : ExitVect) = 
+    let a = List.take (Constants.BlockSize*i) v.vect
+    let b = List.skip (Constants.BlockSize*i) v.vect    
+    { vect = List.append b a }
+    
 let exitIndex (e : int) : int =
     let n = Constants.BlockSize
     let i = e%n
@@ -90,13 +95,34 @@ let print (b : Block) (r : int) : string list =
             let i : int = (x/2) + (y/2-1)*s
             y = 0 || y = n || wall i (i+s)
         | (_,_) -> true
+        
+    let exits = (rotate r b.exits).vect
+                |> List.mapi (fun i e -> if e then Some i else None)
+                |> List.choose id
+                |> List.map exitIndex
+    printfn "%A" exits
+    let isExit x y = 
+        printfn "%A %A %A" x y ((x/2) + (y/2)*s)
+        List.contains ((x/2) + (y/2)*s) exits
     
     [for y in 0..n ->
         [for x in 0..n ->
             match (x%2, y%2) with
             | (1,1) -> " "
-            | (0,1) -> if isWall x y then "\u2503" else " "
-            | (1,0) -> if isWall x y then "\u2501" else " " 
+            | (0,1) ->
+                if isWall x y 
+                then match (x=0, x=n) with 
+                     | (true, false) -> if isExit x y then " " else "\u2503"
+                     | (false, true) -> if isExit (x-1) y then " " else "\u2503"
+                     | (_,_) -> "\u2503"
+                else " "
+            | (1,0) ->
+                if isWall x y 
+                then match (y=0, y=n) with 
+                     | (true, false) -> if isExit x y then " " else "\u2501"
+                     | (false, true) -> if isExit x (y-1) then " " else "\u2501"
+                     | (_,_) -> "\u2501"
+                else " "
             | (0,0) -> 
                 match (y=0, x=0, y=n, x=n) with 
                 | (true,false,false,false) -> if isWall x (y+1) then "\u2533" else "\u2501"
@@ -132,11 +158,6 @@ let print (b : Block) (r : int) : string list =
 let exits (b : Block) = b.exits
 
 let hasExit (ev : ExitVect) : bool = List.exists id ev.vect
-
-let rotate (i : int) (v : ExitVect) = 
-    let a = List.take (Constants.BlockSize*i) v.vect
-    let b = List.skip (Constants.BlockSize*i) v.vect    
-    { vect = List.append b a }
 
 let north (v : ExitVect) : ExitVect =
     let v' = List.take BlockSize v.vect
