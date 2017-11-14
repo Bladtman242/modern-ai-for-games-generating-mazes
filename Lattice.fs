@@ -20,9 +20,9 @@ let exitVect ({template = b; position = _; orientation = r} : LBlock) : ExitVect
 
 let neighbourhood ((x,y) : Pos) : Neighbourhood<Pos> =
     {
-        north = (x,y-1);
+        north = (x,y+1);
         east =  (x+1,y);
-        south = (x,y+1);
+        south = (x,y-1);
         west =  (x-1,y)
     }
 
@@ -108,7 +108,7 @@ let toStrings (lat : Lat) : string list =
     let maxX = List.maxBy fst coords |> fst
     let minY = List.minBy snd coords |> snd
     let maxY = List.maxBy snd coords |> snd
-    [ for y in [minY..maxY] do
+    [ for y in [maxY .. -1 .. minY] do
         yield! row y (minX,maxX) ]
 
 let print (lat: Lat) = List.iter (printfn "%s") (toStrings lat)
