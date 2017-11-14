@@ -11,10 +11,12 @@ let main argv =
     let b3 = Block.createRandom rnd
     let b4 = Block.createRandom rnd
 
-    let l1 = Lattice.placeBlock b1 (0,0) Lattice.emptyLat |> Option.get
-    let l2 = Lattice.placeBlock b2 (1,0) l1
+    let l1 = Lattice.placeBlock b1 (0,0) Lattice.emptyLat
+    let l2 = Option.bind (Lattice.placeBlock b2 (1,0)) l1
     let l3 = Option.bind (Lattice.placeBlock b3 (0,1)) l2
     let l4 = Option.bind (Lattice.placeBlock b4 (1,1)) l3
 
-    ignore <| Option.map Lattice.print l4
+    
+    ignore <| Option.map Lattice.print l1
+    ignore <| Option.map Lattice.print l2
     0

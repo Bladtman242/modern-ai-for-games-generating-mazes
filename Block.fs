@@ -16,6 +16,10 @@ type Block =
         walls : bool list
     }
     
+let emptyExitVect = {
+    vect = [for _ in 0..(Constants.BlockSize-1) -> false]
+}
+    
 let numEdges = (Constants.BlockSize - 1) * Constants.BlockSize * 2
 
 let rec sidify (list : 'a list) (n : int) : 'a list list =
@@ -184,6 +188,7 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) 
     let neighbourList = [neighbourVectors.north; neighbourVectors.east; neighbourVectors.south; neighbourVectors.west]
     let sides = List.map Option.isSome neighbourList
     let frame = List.map Option.toList neighbourList
+             |> List.map (fun l -> if l = [] then [emptyExitVect] else l)
              |> List.concat
              |> concat
 
@@ -206,7 +211,7 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) 
     let mask = List.concat [for s in sides -> maskSide s]
     
     // Helper function that rotates the block if it doesn't match
-    let rec tryMatch rot block =
+    let tryMatch rot block =
         if matches frame.vect (rotate rot block).vect mask true
         then Some(rot)
         else None
