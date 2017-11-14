@@ -18,13 +18,7 @@ type Block =
     
 let numEdges = (Constants.BlockSize - 1) * Constants.BlockSize * 2
 
-let createRandom (rnd : System.Random) : Block = 
-    { 
-        exits = { vect = [for _ in 0..(Constants.BlockSize*4)-1 -> (rnd.Next 2) = 0] };
-        walls = [for _ in 0..numEdges-1 -> (rnd.Next 2) = 0];
-    }
-
-let graph (b : Block) : (int*int) list =
+let inverseGraph (b : Block) : (int*int) list =
     let s = Constants.BlockSize
     let n = numEdges
     [for i in 0..n-1 do
@@ -33,13 +27,49 @@ let graph (b : Block) : (int*int) list =
             let b = if i < n/2 then a+1 else a+s
             yield (a,b)
     ]
+let graph (b : Block) : (int*int) list =
+    let s = Constants.BlockSize
+    let n = numEdges
+    [for i in 0..n-1 do
+        if not <| b.walls.Item i then
+            let a = if i < n/2 then (i/s)+(i%s)*s else i-n/2
+            let b = if i < n/2 then a+1 else a+s
+            yield (a,b)
+    ]
+    
+let exitIndex (e : int) : int =
+    let n = Constants.BlockSize
+    let i = e%n
+    match e/n with
+    | 0 -> i
+    | 1 -> n-1+i*n
+    | 2 -> n*n-1-i
+    | 3 -> (n-i-1) * n
+    | _ -> raise (System.ArgumentException "Exit index outside range")
+
+let neighbors (b : Block) (i : int) : int list =
+    List.choose id <| (List.map (fun (a,b) -> if a = i then Some b else if b = i then Some a else None) <| graph b)
+    
+let connectsTo (block : Block) (a : int) (b : int) : bool =
+    let rec walk todo seen =
+        match todo with
+        | i::is ->
+            if i = b 
+            then true
+            else 
+                let ns = neighbors block i |> List.where (fun j -> not <| List.contains j seen)
+                walk (List.append is ns) (i :: seen)
+        | [] -> false
+    walk [a] []
     
 let print (b : Block) : string list = 
     let s = Constants.BlockSize
     let n = s*2
-    let edges = graph b
+    let edges = inverseGraph b
     let wall a b = List.exists (fun (i,j) -> (i = a && j = b) || (i = b && j = a)) edges
     
+    let connects x y = 
+        connectsTo b 4 (x/2+y/2*s)
     let isWall x y = 
         match (x%2, y%2) with
         | (1,1) -> false
@@ -157,4 +187,46 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) 
         else None
     
     [for i in 0..3 -> tryMatch i (exits toFit)] |> List.choose id
+
+let createRandom (rnd : System.Random) : Block = 
+    { 
+        exits = { vect = [for _ in 0..(Constants.BlockSize*4)-1 -> (rnd.Next 2) = 0] };
+        walls = [for _ in 0..numEdges-1 -> (rnd.Next 2) = 0];
+    }
+    
+let c f a b = f b a
+    
+let create (rnd : System.Random) (e : bool list) : Block = 
+    let exitVect = {
+        vect = e
+    }
+    let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b then Some i else None) e)
+    let valid b = List.forall ((c connectsTo) exits.Head b) exits.Tail
+    let mutable block = { 
+        exits = exitVect;
+        walls = [for _ in 0..numEdges-1 -> true]; // (rnd.Next 2) = 0
+    }
+    
+    // Remove walls until a valid block is found
+    while not <| valid block do
+        let walls = List.choose id <| List.mapi (fun i v -> if v then Some i else None) block.walls
+        let flip = List.item (rnd.Next walls.Length) walls
+        block <- {
+            exits = block.exits
+            walls = List.mapi (fun i v -> if i = flip then not v else v) block.walls 
+        }
+    
+    let mutable result = block
+    // Add walls back until no longer valid
+//    while valid block do
+//        let walls = List.choose id <| List.mapi (fun i v -> if v then None else Some i) block.walls
+//        let flip = List.item (rnd.Next walls.Length) walls
+//        let b = {
+//            exits = block.exits
+//            walls = List.mapi (fun i v -> if i = flip then not v else v) block.walls 
+//        }
+//        result <- block
+//        block <- b
+//    
+    result
 

@@ -9,6 +9,9 @@ type ExitVect
 // Temporary signature for creating a random new block
 val createRandom : System.Random -> Block
 
+// Creates a new block that fits the given exits
+val create : System.Random -> bool list -> Block
+
 // determines whether an exit vector has exits, be it a vector for a full
 // block, or one or more sides
 val hasExit : (ExitVect -> bool)
@@ -24,9 +27,14 @@ val numEdges : int
 
 // Returns the internal graph of the maze block
 val graph : (Block -> (int*int) list)
+val inverseGraph : (Block -> (int*int) list)
 
 // Returns the strings to be printed to show the block
 val print : Block -> string list
+
+// For internal use. Exposed for debugging
+val exitIndex : int -> int
+val connectsTo : Block -> int -> int -> bool
 
 
 // Get the northerns exits
