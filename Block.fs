@@ -215,7 +215,6 @@ let rec fit (neighbourVectors : Neighbourhood<ExitVect option>) (toFit : Block) 
     
     // Helper function that rotates the block if it doesn't match
     let tryMatch rot block =
-        printfn "%A\n%A\n%A\n" frame.vect (rotate rot block).vect mask
         if matches frame.vect (rotate rot block).vect mask true
         then Some(rot)
         else None
