@@ -97,13 +97,13 @@ let print (b : Block) (r : int) : string list =
         | (_,_) -> true
         
     let exits = (rotate r b.exits).vect
-                |> List.mapi (fun i e -> if e then Some i else None)
-                |> List.choose id
-                |> List.map exitIndex
-    printfn "%A" exits
     let isExit x y = 
-        printfn "%A %A %A" x y ((x/2) + (y/2)*s)
-        List.contains ((x/2) + (y/2)*s) exits
+        match (y=0, x=0, y=n, x=n) with 
+        | (true,false,false,false) -> exits.Item (s*0+x/2)
+        | (false,false,false,true) -> exits.Item (s*1+y/2)
+        | (false,false,true,false) -> exits.Item (s*3-(x/2)-1)
+        | (false,true,false,false) -> exits.Item (s*4-(y/2)-1)
+        | (_,_,_,_) -> false
     
     [for y in 0..n ->
         [for x in 0..n ->
@@ -111,17 +111,11 @@ let print (b : Block) (r : int) : string list =
             | (1,1) -> " "
             | (0,1) ->
                 if isWall x y 
-                then match (x=0, x=n) with 
-                     | (true, false) -> if isExit x y then " " else "\u2503"
-                     | (false, true) -> if isExit (x-1) y then " " else "\u2503"
-                     | (_,_) -> "\u2503"
+                then if isExit x y then " " else "\u2503"
                 else " "
             | (1,0) ->
                 if isWall x y 
-                then match (y=0, y=n) with 
-                     | (true, false) -> if isExit x y then " " else "\u2501"
-                     | (false, true) -> if isExit x (y-1) then " " else "\u2501"
-                     | (_,_) -> "\u2501"
+                then if isExit x y then " " else "\u2501"
                 else " "
             | (0,0) -> 
                 match (y=0, x=0, y=n, x=n) with 
