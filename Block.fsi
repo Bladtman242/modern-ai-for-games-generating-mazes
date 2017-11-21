@@ -8,6 +8,7 @@ type ExitVect
 val ExitVect : bool list -> ExitVect
 
 val emptyExitVect : ExitVect
+val randomExitVect : System.Random -> double -> ExitVect
 
 // Temporary signature for creating a random new block
 val createRandom : System.Random -> Block

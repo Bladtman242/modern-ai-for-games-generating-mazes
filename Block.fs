@@ -18,6 +18,9 @@ let ExitVect (v : bool list) : ExitVect = { vect = v }
     
 let emptyExitVect = {
     vect = [for _ in 0..(Constants.BlockSize-1) -> false]
+}   
+let randomExitVect (rnd : System.Random) (chance : double) : ExitVect = {
+    vect = [for _ in 0..(Constants.BlockSize-1) -> rnd.NextDouble() < chance ]
 }
 let reverseExitVect (e : ExitVect) : ExitVect = {
     vect = List.rev e.vect

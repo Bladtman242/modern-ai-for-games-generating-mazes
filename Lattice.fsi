@@ -27,4 +27,6 @@ val fitDef : (Lat -> Pos -> Neighbourhood<ExitVect option>)
 val fits : (Neighbourhood<ExitVect option> -> Lat -> Block -> int list)
 val placeBlock : (Block -> Pos -> Lat -> Lat option)
 val addBlock : (LBlock -> Lat -> Lat)
+val pos : LBlock -> Pos
+val block : LBlock -> Block
 
