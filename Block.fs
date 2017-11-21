@@ -14,6 +14,8 @@ type Block =
         walls : bool list
     }
     
+let ExitVect (v : bool list) : ExitVect = { vect = v }
+    
 let emptyExitVect = {
     vect = [for _ in 0..(Constants.BlockSize-1) -> false]
 }
@@ -227,12 +229,13 @@ let createRandom (rnd : System.Random) : Block =
     
 let c f a b = f b a
     
-let create (rnd : System.Random) (e : bool list) : Block = 
-    let exitVect = {
-        vect = e
-    }
-    let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b then Some i else None) e)
-    let valid b = List.forall ((c connectsTo) exits.Head b 0) exits.Tail
+let create (rnd : System.Random) (n : Neighbourhood<ExitVect option>) : Block = 
+    let exitVect = concat <| List.map (fun s -> if s = None then emptyExitVect else s.Value) n.toList
+    let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b<>None then Some i else None) n.toList)
+    let valid b = 
+        if exits.Length = 0
+        then true
+        else List.forall ((c connectsTo) exits.Head b 0) exits.Tail
     let mutable block = { 
         exits = exitVect;
         walls = [for _ in 0..numEdges-1 -> true]; // (rnd.Next 2) = 0

@@ -55,6 +55,7 @@
     <Compile Include="Block.fs" />
     <Compile Include="Lattice.fsi" />
     <Compile Include="Lattice.fs" />
+    <Compile Include="StructureGraph.fs" />
     <Compile Include="Program.fs" />
     <Content Include="packages.config" />
     <None Include="App.config" />
