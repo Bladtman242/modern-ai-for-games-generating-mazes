@@ -15,6 +15,9 @@ type Lat = { lat : Map<Pos,LBlock> }
 
 let LBlock b o p = { template = b; position = p; orientation = o}
 
+let pos (b : LBlock) : Pos = b.position
+let block (b : LBlock) : Block = b.template
+
 let exitVect ({template = b; position = _; orientation = r} : LBlock) : ExitVect =
     Block.rotate r (Block.exits b)
 
