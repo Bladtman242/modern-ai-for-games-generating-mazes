@@ -43,3 +43,4 @@ let addEdge (a : 'n) (b : 'n) (g : Graph<'n>) : Graph<'n> =
 let nodes (g: 'n Graph) : 'n Set =
     Map.toList g.adjacencies |> List.map fst |> Set.ofList
 
+let contains (n : 'n) (g : 'n Graph) : bool = Map.containsKey n g.adjacencies

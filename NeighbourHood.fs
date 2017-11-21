@@ -28,11 +28,14 @@ let map2 (f : 'a -> int -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
             west = f n.west 3;
         }
 
+let get (r : int) (n : 'a Neighbourhood) : 'a = List.item (r % 4) n.toList
+
+let toList (n : 'a Neighbourhood) : 'a list = n.toList
+
 let ofList (l : 'a list) : 'a Neighbourhood =
-    if List.length l <> 4
-    then raise (System.ArgumentException "Creating a neighbourhood with more than 4 sides may not do what you intend")
-    else let [n;e;s;w] = l
-         {north = n; east = e; south = s; west = w}
+    match l with
+    | [n;e;s;w] -> {north = n; east = e; south = s; west = w}
+    | _ -> raise (System.ArgumentException "Creating a neighbourhood with more or less than 4 sides may not do what you intend")
 
 let rotate (times : int) (n : 'a Neighbourhood) : 'a Neighbourhood =
     let times' = times % 4
