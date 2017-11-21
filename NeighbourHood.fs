@@ -19,7 +19,13 @@ let map (f : 'a -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
             north = f n.north;
             east = f n.east;
             south = f n.south;
-            west = f n.west
+            west = f n.west;
+        }
+let map2 (f : 'a -> int -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
+            north = f n.north 0;
+            east = f n.east 1;
+            south = f n.south 2;
+            west = f n.west 3;
         }
 
 let ofList (l : 'a list) : 'a Neighbourhood =

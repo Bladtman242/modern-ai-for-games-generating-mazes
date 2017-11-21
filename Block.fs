@@ -227,15 +227,21 @@ let createRandom (rnd : System.Random) : Block =
         walls = [for _ in 0..numEdges-1 -> (rnd.Next 2) = 0];
     }
     
-let c f a b = f b a
     
 let create (rnd : System.Random) (n : Neighbourhood<ExitVect option>) : Block = 
+    // Get the full exitvect from the given neighborhood
     let exitVect = concat <| List.map (fun s -> if s = None then emptyExitVect else s.Value) n.toList
-    let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b<>None then Some i else None) n.toList)
-    let valid b = 
+    
+    // Get the internal index of all the exit nodes
+    let exits = List.map exitIndex <| (List.choose id <| List.mapi (fun i b -> if b then Some i else None) exitVect.vect)
+    
+    // Function to determine if a block is valid
+    let valid (b:Block) = 
         if exits.Length = 0
         then true
-        else List.forall ((c connectsTo) exits.Head b 0) exits.Tail
+        else List.forall (connectsTo b 0 exits.Head) exits.Tail
+    
+    // Mutate this block to get the result
     let mutable block = { 
         exits = exitVect;
         walls = [for _ in 0..numEdges-1 -> true]; // (rnd.Next 2) = 0
