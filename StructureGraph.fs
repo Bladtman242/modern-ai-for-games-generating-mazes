@@ -34,22 +34,26 @@ let picker rnd neighbors (x,y) lat : Lattice.LBlock =
         | _ -> raise (System.Exception "This shouldn't happen")
     let exit (d:int) =
         match d with
-        | 0 -> Block.north
-        | 1 -> Block.east
-        | 2 -> Block.south
-        | 3 -> Block.west
+        | 0 -> Block.south
+        | 1 -> Block.west
+        | 2 -> Block.north
+        | 3 -> Block.east
         | _ -> raise (System.Exception "This shouldn't happen")
     let exithood = neighborhood |> Neighbourhood.map2 (fun b r -> 
         if b.IsSome 
         then if Set.contains (Lattice.pos b.Value) neighbors 
-             then Some(exit r <| Block.exits (Lattice.block b.Value))
-             else Some(Block.emptyExitVect)
+             then printfn "A %A" r
+                  Some(Lattice.exitVect b.Value |> exit r |> Block.reverseExitVect)
+             else printfn "B %A" r
+                  Some(Block.emptyExitVect)
         else if Set.contains (offset r) neighbors
-             then Some(Block.randomExitVect rnd 0.5)
-             else None
+             then printfn "C %A" r
+                  Some(Block.randomExitVect rnd 0.5)
+             else printfn "D %A" r
+                  None
     ) 
     printfn "%A" exithood
-    Lattice.LBlock (Block.createRandom rnd) 0 pos
+    Lattice.LBlock (Block.create rnd exithood) 0 pos
     
 
 let toLat : BlockPicker -> LatGen = fun f g ->
