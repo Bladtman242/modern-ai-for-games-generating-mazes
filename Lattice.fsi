@@ -17,9 +17,12 @@ val toStrings : Lat -> string list
 // not there are blocks in those positions
 val exits : (LBlock -> Pos list)
 val LBlock : Block -> int -> Pos -> LBlock
+val exitVect : (LBlock -> Block.ExitVect)
 
 // List of LBlocks in the positions surrounding the given posision
+val neighbourhood : Pos -> Pos Neighbourhood
 val neighbours : (Lat -> Pos -> LBlock list)
+val neighbourhoodLBlocks : (Lat -> Pos -> (LBlock option) Neighbourhood)
 val fitDef : (Lat -> Pos -> Neighbourhood<ExitVect option>)
 val fits : (Neighbourhood<ExitVect option> -> Lat -> Block -> int list)
 val placeBlock : (Block -> Pos -> Lat -> Lat option)
