@@ -1,8 +1,6 @@
 module Block
 open Neighbourhood
 
-// vim: set sw=4 ts=4 et:
-
 type Block
 type ExitVect
 

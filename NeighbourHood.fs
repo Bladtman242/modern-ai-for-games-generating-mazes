@@ -14,4 +14,3 @@ let map (f : 'a -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
             south = f n.south;
             west = f n.west
         }
-// vim: set sw=4 ts=4 et:

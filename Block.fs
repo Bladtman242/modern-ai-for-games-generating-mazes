@@ -3,8 +3,6 @@ module Block
 open Constants
 open Neighbourhood
 
-// vim: set sw=4 ts=4 et:
-
 type ExitVect =
     private {
         vect : bool list

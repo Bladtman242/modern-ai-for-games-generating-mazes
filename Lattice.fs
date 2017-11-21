@@ -113,4 +113,3 @@ let toStrings (lat : Lat) : string list =
 
 let print (lat: Lat) = List.iter (printfn "%s") (toStrings lat)
 
-// vim: set sw=4 ts=4 et:

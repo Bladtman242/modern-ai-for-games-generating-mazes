@@ -28,4 +28,3 @@ val fits : (Neighbourhood<ExitVect option> -> Lat -> Block -> int list)
 val placeBlock : (Block -> Pos -> Lat -> Lat option)
 val addBlock : (LBlock -> Lat -> Lat)
 
-// vim: set sw=4 ts=4 et:
