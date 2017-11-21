@@ -21,3 +21,14 @@ let map (f : 'a -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
             south = f n.south;
             west = f n.west
         }
+
+let ofList (l : 'a list) : 'a Neighbourhood =
+    if List.length l <> 4
+    then raise (System.ArgumentException "Creating a neighbourhood with more than 4 sides may not do what you intend")
+    else let [n;e;s;w] = l
+         {north = n; east = e; south = s; west = w}
+
+let rotate (times : int) (n : 'a Neighbourhood) : 'a Neighbourhood =
+    let times' = times % 4
+    let l = n.toList
+    ofList <| List.append (List.skip (4-times') l) (List.take (4-times') l)
