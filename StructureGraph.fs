@@ -75,22 +75,26 @@ let private nodeNeighbourhood (n : int*int) (g : StructGraph) : (int*int) option
  |> Neighbourhood.map neighBourOrNone
 
 let doesRuleMatch (rule : StructGraph) (p : int*int) (g : StructGraph) : bool =
-    let rec doesMatch (rot : int) (rp : int*int) (p : int*int) : bool =
-        let rn = Neighbourhood.rotate rot <| nodeNeighbourhood rp rule
-        let gn = nodeNeighbourhood p g
-        let hasSameEdges = Neighbourhood.map Option.isSome gn = Neighbourhood.map Option.isSome rn
-        printfn "%A" rn
-        printfn "%A" gn
-        if not hasSameEdges then printfn "3"; false
-        else printfn "4"; Neighbourhood.map2 (fun pOpt dir -> Option.map (fun p -> doesMatch rot p (Option.get (Neighbourhood.get dir gn))) pOpt)
-                                             rn
-          |> Neighbourhood.map (Option.getOrElse true)
-          |> Neighbourhood.toList
-          |> List.forall id
+    //logical implication. a implies b.
+    let (=>) a b = not a || b
+    let rec doesMatch (visited : (int*int) Set) (rot : int) (rp : int*int) (p : int*int) : bool =
+        if Set.contains rp visited
+        then true
+        else let visited' = Set.add rp visited
+             let rn = Neighbourhood.rotate rot <| nodeNeighbourhood rp rule
+             let gn = nodeNeighbourhood p g
+             let hasSameEdges = List.map2 (=>) (List.map Option.isSome rn.toList) (List.map Option.isSome gn.toList)
+                             |> List.forall id
+             if not hasSameEdges then false
+             else Neighbourhood.map2 (fun pOpt dir -> Option.map (fun p -> doesMatch visited' rot p (Option.get (Neighbourhood.get dir gn))) pOpt)
+                                                  rn
+               |> Neighbourhood.map (Option.getOrElse true)
+               |> Neighbourhood.toList
+               |> List.forall id
 
     let ruleRoot = Graph.nodes rule |> Set.toList |> List.head
     let adjs = Graph.adjacentTo p g
     //early termination if the graph node has lower degree than the rule node
     if Set.count adjs < Set.count (Graph.adjacentTo ruleRoot rule)
-    then printfn "1"; false
-    else printfn "2"; Set.exists (fun n -> doesMatch 0 ruleRoot n) (Graph.nodes g)
+    then false
+    else Set.exists (fun n -> doesMatch Set.empty 0 ruleRoot n) (Graph.nodes g)
