@@ -4,13 +4,18 @@ open Neighbourhood
 // vim: set sw=4 ts=4 et:
 
 type Block
-type ExitVect
+type ExitVect   
+
+
+val ExitVect : bool list -> ExitVect
+
+val emptyExitVect : ExitVect
 
 // Temporary signature for creating a random new block
 val createRandom : System.Random -> Block
 
 // Creates a new block that fits the given exits
-val create : System.Random -> bool list -> Block
+val create : System.Random -> Neighbourhood<ExitVect option> -> Block
 
 // determines whether an exit vector has exits, be it a vector for a full
 // block, or one or more sides
