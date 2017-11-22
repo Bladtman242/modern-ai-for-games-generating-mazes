@@ -74,7 +74,7 @@ let private nodeNeighbourhood (n : int*int) (g : StructGraph) : (int*int) option
     Lattice.neighbourhood n
  |> Neighbourhood.map neighBourOrNone
 
-let doesRuleMatch (rule : StructGraph) (p : int*int) (g : StructGraph) : bool =
+let doesRuleMatch (rule : StructGraph) (g : StructGraph) : bool =
     //logical implication. a implies b.
     let (=>) a b = not a || b
     let rec doesMatch (visited : (int*int) Set) (rot : int) (rp : int*int) (p : int*int) : bool =
@@ -93,8 +93,8 @@ let doesRuleMatch (rule : StructGraph) (p : int*int) (g : StructGraph) : bool =
                |> List.forall id
 
     let ruleRoot = Graph.nodes rule |> Set.toList |> List.head
-    let adjs = Graph.adjacentTo p g
-    //early termination if the graph node has lower degree than the rule node
-    if Set.count adjs < Set.count (Graph.adjacentTo ruleRoot rule)
-    then false
-    else Set.exists (fun n -> doesMatch Set.empty 0 ruleRoot n) (Graph.nodes g)
+    Set.exists (doesMatch Set.empty 0 ruleRoot) (Graph.nodes g)
+ || Set.exists (doesMatch Set.empty 1 ruleRoot) (Graph.nodes g)
+ || Set.exists (doesMatch Set.empty 2 ruleRoot) (Graph.nodes g)
+ || Set.exists (doesMatch Set.empty 4 ruleRoot) (Graph.nodes g)
+
