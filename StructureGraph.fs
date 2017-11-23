@@ -42,7 +42,7 @@ let picker rnd neighbors (x,y) lat : Lattice.LBlock =
         | 2 -> Block.north
         | 3 -> Block.east
         | _ -> raise (System.Exception "This shouldn't happen")
-    let exithood = neighborhood |> Neighbourhood.map2 (fun b r -> 
+    let exithood = neighborhood |> Neighbourhood.mapWithDir (fun b r -> 
         if b.IsSome 
         then if Set.contains (Lattice.pos b.Value) neighbors 
              then printfn "A %A" r
@@ -86,8 +86,8 @@ let doesRuleMatch (rule : StructGraph) (g : StructGraph) : bool =
              let hasSameEdges = List.map2 (=>) (List.map Option.isSome rn.toList) (List.map Option.isSome gn.toList)
                              |> List.forall id
              if not hasSameEdges then false
-             else Neighbourhood.map2 (fun pOpt dir -> Option.map (fun p -> doesMatch visited' rot p (Option.get (Neighbourhood.get dir gn))) pOpt)
-                                                  rn
+             else Neighbourhood.mapWithDir (fun pOpt dir -> Option.map (fun p -> doesMatch visited' rot p (Option.get (Neighbourhood.get dir gn))) pOpt)
+                                           rn
                |> Neighbourhood.map (Option.getOrElse true)
                |> Neighbourhood.toList
                |> List.forall id

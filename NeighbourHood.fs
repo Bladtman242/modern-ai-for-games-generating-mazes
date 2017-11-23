@@ -15,19 +15,6 @@ let create (n:'a) (e:'a) (s:'a) (w:'a) : Neighbourhood<'a> = {
     west = w;
 }
 
-let map (f : 'a -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
-            north = f n.north;
-            east = f n.east;
-            south = f n.south;
-            west = f n.west;
-        }
-let map2 (f : 'a -> int -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
-            north = f n.north 0;
-            east = f n.east 1;
-            south = f n.south 2;
-            west = f n.west 3;
-        }
-
 let get (r : int) (n : 'a Neighbourhood) : 'a = List.item (r % 4) n.toList
 
 let toList (n : 'a Neighbourhood) : 'a list = n.toList
@@ -41,3 +28,21 @@ let rotate (times : int) (n : 'a Neighbourhood) : 'a Neighbourhood =
     let times' = times % 4
     let l = n.toList
     ofList <| List.append (List.skip (4-times') l) (List.take (4-times') l)
+
+let map (f : 'a -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
+            north = f n.north;
+            east = f n.east;
+            south = f n.south;
+            west = f n.west;
+        }
+
+let map2 (f : 'a -> 'b -> 'c) (a : Neighbourhood<'a>) (b : Neighbourhood<'b>) : Neighbourhood<'c> =
+    List.map2 f a.toList b.toList
+ |> ofList
+
+let mapWithDir (f : 'a -> int -> 'b) (n : Neighbourhood<'a>) : Neighbourhood<'b> = {
+            north = f n.north 0;
+            east = f n.east 1;
+            south = f n.south 2;
+            west = f n.west 3;
+        }
