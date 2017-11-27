@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Evolution.fs" />
     <Compile Include="OptionExtensions.fs" />
     <Compile Include="Graph.fs" />
     <Compile Include="NeighbourHood.fs" />
