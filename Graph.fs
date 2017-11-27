@@ -40,6 +40,18 @@ let addEdge (a : 'n) (b : 'n) (g : Graph<'n>) : Graph<'n> =
             |> Map.add b (Set.add a bAdj)
     { adjacencies = adj' }
 
+let removeEdge (a : 'n) (b : 'n) (g : Graph<'n>) : Graph<'n> =
+    let aAdj = Set.remove b (adjacentTo a g)
+    let bAdj = Set.remove a (adjacentTo b g)
+    let adjWithoutAB = if aAdj = Set.empty
+                       then Map.remove a g.adjacencies
+                       else Map.add a aAdj g.adjacencies
+    let adj' = if bAdj = Set.empty
+               then Map.remove b adjWithoutAB
+               else Map.add b bAdj adjWithoutAB
+
+    { adjacencies = adj' }
+
 let nodes (g: 'n Graph) : 'n Set =
     Map.toList g.adjacencies |> List.map fst |> Set.ofList
 
