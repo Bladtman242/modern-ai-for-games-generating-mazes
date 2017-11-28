@@ -76,7 +76,7 @@ let toLat : BlockPicker -> LatGen = fun f g ->
     let nodeSet = Graph.nodes g
     Set.fold pickBlock Lattice.emptyLat nodeSet
 
-let private nodeNeighbourhood (n : int*int) (g : StructGraph) : (int*int) option Neighbourhood =
+let nodeNeighbourhood (n : int*int) (g : StructGraph) : (int*int) option Neighbourhood =
     let neighBourOrNone n' = if Graph.areAdjacent n n' g
                                then Some n'
                                else None
