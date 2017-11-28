@@ -56,3 +56,30 @@ let nodes (g: 'n Graph) : 'n Set =
     Map.toList g.adjacencies |> List.map fst |> Set.ofList
 
 let contains (n : 'n) (g : 'n Graph) : bool = Map.containsKey n g.adjacencies
+
+let avgDegree (g : 'n Graph) : float = Map.toList g.adjacencies
+                                    |> List.map (snd >> Set.count)
+                                    |>  List.sum
+                                    |> fun s -> (float s) / (float (Map.count g.adjacencies))
+
+let distance (a : 'n) (b : 'n) (g : 'n Graph) : int option =
+    let rec dist (visited : 'n Set) (frontier : (int*'n) List) (goal : 'n) : int option =
+        if List.isEmpty frontier then None
+        else if Seq.contains (snd <| List.head frontier) visited
+             then dist visited (List.tail frontier) goal
+             else let (d,n) = List.head frontier
+                  if goal = n then Some (d)
+                  else let neighbours = Seq.toList (adjacentTo n g)
+                                     |> List.map (fun n -> (d+1,n))
+                       dist (Set.add n visited) (List.tail frontier @ neighbours) goal
+    dist Set.empty [(0,a)] b
+
+let avgDistance (g : 'n Graph) : float =
+    let pairs = [ for a in (nodes g) do
+                  for b in (nodes g) do
+                      if a <> b then yield (a,b)]
+    let dists = List.collect (fun (a,b) -> Option.toList <| distance a b g) pairs
+    let sum = float <| List.sum dists
+    let size = float <| List.length pairs
+    sum / size
+
