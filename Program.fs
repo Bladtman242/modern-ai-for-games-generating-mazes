@@ -105,6 +105,6 @@ let main argv =
                  |> List.map (StructureGraph.toLat (StructureGraph.picker rnd))
                  
     for lat in output do
-        Lattice.print lat
+        Lattice.print lat; System.Console.WriteLine "-------------------------"
     
     0
