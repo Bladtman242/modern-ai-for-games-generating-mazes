@@ -1,5 +1,6 @@
 ﻿
 open Block
+open Evolution
 
 [<EntryPoint>]
 let main argv = 
@@ -18,4 +19,18 @@ let main argv =
           |> Graph.addEdge (4,1) (4,0)
 
     Lattice.print <| StructureGraph.toLat (StructureGraph.picker rnd) g1
+    
+    
+    let initPop = List.init 100 (fun _ -> 0)
+    let muts = [
+        ((fun i -> i+1), 1);
+        ((fun i -> i-1), 1);
+    ]
+    let eval = fun i -> double (i)
+    let sel = fun n (i, s) -> i < n/2
+    let breed = fun (a,b) -> a
+    let res = Evolution.train rnd 200 muts eval sel breed initPop
+    
+    printfn "%A" res
+    
     0

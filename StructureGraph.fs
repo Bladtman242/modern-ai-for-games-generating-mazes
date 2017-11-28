@@ -59,17 +59,12 @@ let picker rnd neighbors (x,y) lat : Lattice.LBlock =
     let exithood = neighborhood |> Neighbourhood.mapWithDir (fun b r -> 
         if b.IsSome 
         then if Set.contains (Lattice.pos b.Value) neighbors 
-             then printfn "A %A" r
-                  Some(Lattice.exitVect b.Value |> exit r |> Block.reverseExitVect)
-             else printfn "B %A" r
-                  Some(Block.emptyExitVect)
+             then Some(Lattice.exitVect b.Value |> exit r |> Block.reverseExitVect)
+             else Some(Block.emptyExitVect)
         else if Set.contains (offset r) neighbors
-             then printfn "C %A" r
-                  Some(Block.randomExitVect rnd 0.5)
-             else printfn "D %A" r
-                  None
+             then Some(Block.randomExitVect rnd 0.5)
+             else None
     ) 
-    printfn "%A" exithood
     Lattice.LBlock (Block.create rnd exithood) 0 pos
     
 
