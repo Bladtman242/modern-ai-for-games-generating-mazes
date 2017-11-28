@@ -3,12 +3,11 @@
   <component name="ContentModelStore">
     <e p="C:\Projects\Mazes" t="IncludeRecursive">
       <e p="App.config" t="Include" />
+      <e p="Constants.fs" t="Include" />
       <e p="AssemblyInfo.fs" t="Include" />
       <e p="bin" t="ExcludeRecursive" />
-      <e p="StructureGraph.fs" t="Include" />
       <e p="Block.fs" t="Include" />
       <e p="Block.fsi" t="Include" />
-      <e p="Constants.fs" t="Include" />
       <e p="Evolution.fs" t="Include" />
       <e p="Graph.fs" t="Include" />
       <e p="Lattice.fs" t="Include" />
@@ -22,6 +21,7 @@
       <e p="packages.config" t="Include" />
       <e p="Program.fs" t="Include" />
       <e p="SeqExtensions.fs" t="Include" />
+      <e p="StructureGraph.fs" t="Include" />
     </e>
     <e p="C:\Users\rick\.Rider2017.2\system\resharper-host\local\Transient\ReSharperHost\v10\SolutionCaches\_Mazes.-1255259069.00" t="ExcludeRecursive" />
   </component>

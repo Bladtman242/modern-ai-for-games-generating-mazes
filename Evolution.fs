@@ -31,11 +31,16 @@ let generation (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluato
               |> List.filter snd'
               |> List.map (fun (e,_,s) -> (e,s))
     let children = List.init (pop.Length - res.Length) (fun _ -> breed (fst (pick rnd res), fst (pick rnd res)))
+                   |> mutate rnd muts
     (List.average (List.map snd res),List.append (List.map fst res) children)
     
-let train (rnd:System.Random) (gens:int) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : double*Population<'a> =
+let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : double*Population<'a> =
     let mutable result = (0.0,pop)
-    for g = 0 to gens do
-        result <- generation rnd muts eval sel breed <| snd result
-        printfn "Fitness in generation %d: %f" g (fst result)
+    let mutable stale = 0
+    for g = 0 to Constants.MaxGenerations do
+        if g < Constants.MinGenerations || stale <> Constants.StopWhenStaleFor then
+            let res = generation rnd muts eval sel breed <| snd result
+            if fst res = fst result then stale <- stale + 1 else stale <- 0
+            result <- res
+            printfn "Fitness in generation %d: %f" g (fst result)
     result

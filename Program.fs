@@ -48,6 +48,7 @@ let main argv =
                     |> List.choose id
             (a,r))
         |> List.where (fun (a,r) -> r.Length > 0)
+    let flip f y x = f x y
         
     let addEdge g =
         let ns = Graph.nodes g |> Set.toList
@@ -61,6 +62,19 @@ let main argv =
         (addEdge <| fst rule, snd rule)
     let addToRight rule =
         (fst rule, addEdge <| snd rule)
+    let remEdge g =
+        let ns = Graph.nodes g |> Set.toList
+        if ns.Length = 0 then Graph.addEdge (0,0) (0,1) g
+        else
+            let allPossible = ns |> List.map (fun n -> (n, StructureGraph.nodeNeighbourhood n g
+                                                           |> Neighbourhood.toList |> List.choose id))
+            let (a,possible) = allPossible.Item (rnd.Next allPossible.Length)
+            let b = possible.Item (rnd.Next possible.Length)
+            Graph.removeEdge a b g
+    let remFrLeft rule =
+        (addEdge <| fst rule, snd rule)
+    let remFrRight rule =
+        (fst rule, addEdge <| snd rule)
     
     
     // Parameters for the algorithm
@@ -70,21 +84,23 @@ let main argv =
         ((fun i ->                                                  // Add new rule if missing         
              if List.contains emptyRule i then i else emptyRule::i), 1);                               
         ((fun i -> replaceAt (rnd.Next i.Length) addToLeft i), 2);  // Add edge to a left
-        ((fun i -> replaceAt (rnd.Next i.Length) addToRight i), 3); // Add edge to a right
+        ((fun i -> replaceAt (rnd.Next i.Length) addToRight i), 3); // Add edge to a right             
+        ((fun i -> replaceAt (rnd.Next i.Length) remFrLeft i), 2);  // Remove edge from a left
+        ((fun i -> replaceAt (rnd.Next i.Length) remFrRight i), 3); // Remove edge from a right
     ]
     let eval = fun (rs) -> 
         let g = applyRules rs seed 0
         let size = Graph.nodes g |> Set.count |> double
-        -abs(20.0 - size)
+        -abs(30.0 - size)
         
     let sel = fun n (i, s) -> i < n/4
     let breed = fun (a,b) -> a
     
     // Run the algorithm
-    let (_,res) = Evolution.train rnd Constants.Generations muts eval sel breed initPop
+    let (_,res) = Evolution.train rnd muts eval sel breed initPop
     let output = res 
                  |> List.sortByDescending eval 
-                 |> List.take 5 
+                 |> List.take 5
                  |> List.map (fun g -> applyRules g seed 0) 
                  |> List.map (StructureGraph.toLat (StructureGraph.picker rnd))
                  
