@@ -140,7 +140,7 @@ let transformPoint (rm: RuleMatch) ((x,y) : int*int) : int*int =
     let (cx,cy) = rm.rulePoint
     let delta = (x-cx,y-cy)
     let (irx,iry) = rotatePoint rm.rotation delta
-    translatePoint (x,y) (irx, iry)
+    translatePoint (cx,cy) (irx, iry)
  |> translatePoint rm.pointDelta
 
 
