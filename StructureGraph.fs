@@ -102,16 +102,18 @@ let matchRule (rule : StructGraph) (g : StructGraph) : RuleMatch option =
                |> Neighbourhood.toList
                |> List.forall id
 
-    let (rx,ry) as ruleRoot = Graph.nodes rule |> Set.toList |> List.head
-    let nodes = Graph.nodes g
-    let rsAndNodes = Seq.zip (Seq.infinite 0) nodes
-                  |> Seq.append (Seq.zip (Seq.infinite 1) nodes)
-                  |> Seq.append (Seq.zip (Seq.infinite 2) nodes)
-                  |> Seq.append (Seq.zip (Seq.infinite 3) nodes)
-    Seq.filter (fun (r,n) -> doesMatch Set.empty r ruleRoot n) rsAndNodes
- |> Seq.tryHead
- |> Option.map (fun (r,(x,y)) -> {rotation = r; rulePoint = ruleRoot; pointDelta = (x-rx, y-ry)})
-
+    let ruleRootOpt = Graph.nodes rule |> Set.toList |> List.tryHead
+    if Option.isNone ruleRootOpt then None
+    else let (rx,ry) as ruleRoot = Option.get ruleRootOpt
+         let nodes = Graph.nodes g
+         let rsAndNodes = Seq.zip (Seq.infinite 0) nodes
+                       |> Seq.append (Seq.zip (Seq.infinite 1) nodes)
+                       |> Seq.append (Seq.zip (Seq.infinite 2) nodes)
+                       |> Seq.append (Seq.zip (Seq.infinite 3) nodes)
+         Seq.filter (fun (r,n) -> doesMatch Set.empty r ruleRoot n) rsAndNodes
+      |> Seq.tryHead
+      |> Option.map (fun (r,(x,y)) -> {rotation = r; rulePoint = ruleRoot; pointDelta = (x-rx, y-ry)})
+     
  // takes left- and right-hand side of a grammar rule, and returns a tuple (add
  // set, remove set) of edge sets Note: the returned change-sets are in the
  // same space as the given rule, so if a change-set in mathed graph space is
@@ -127,17 +129,24 @@ let ruleDelta (leftHand : StructGraph) (rightHand : StructGraph) : (Edge Set * E
     let uniqueToRight = Set.difference rightEdges leftEdges
     (uniqueToRight,uniqueToLeft)
 
-let rec rotatePoint (r : int) (center : int*int) ((x,y) as p : int*int) : int*int =
+let rec rotatePoint (r : int) ((x,y) as p : int*int) : int*int =
     if r = 0 then p
-    else rotatePoint (r-1) center (-y,x)
+    else rotatePoint (r-1) (-y,x)
 
-let rec translatePoint ((dx,dy) : int*int) ((x,y) : int*int) : int*int =
+let translatePoint ((dx,dy) : int*int) ((x,y) : int*int) : int*int =
     (x+dx, y+dy)
+
+let transformPoint (rm: RuleMatch) ((x,y) : int*int) : int*int =
+    let (cx,cy) = rm.rulePoint
+    let delta = (x-cx,y-cy)
+    let (irx,iry) = rotatePoint rm.rotation delta
+    translatePoint (x,y) (irx, iry)
+ |> translatePoint rm.pointDelta
+
 
 //applies a rule diff (addset*removeset) to a graph
 let applyDelta ((addSet,removeSet) : (Edge Set) * (Edge Set)) (rm : RuleMatch) (g : StructGraph) : StructGraph =
-    let transformPoint = rotatePoint rm.rotation rm.rulePoint >> translatePoint rm.pointDelta
-    let transformEdge (p1,p2) = (transformPoint p1, transformPoint p2)
+    let transformEdge (p1,p2) = (transformPoint rm p1, transformPoint rm p2)
     let addSet' = Set.map transformEdge addSet
     let removeSet' = Set.map transformEdge removeSet
     let graphWithAdded = Set.fold (fun g (p1,p2) -> Graph.addEdge p1 p2 g) g addSet'
