@@ -64,24 +64,31 @@ let main argv =
     
     
     // Parameters for the algorithm
-    let initPop : Population<Genome> = List.init 50 (fun _ -> [])
+    let initPop : Population<Genome> = List.init Constants.PopulationSize (fun _ -> [])
     let muts : (Mutation<Genome>*int) list = [
         ((fun i -> i), 0);                                          // Nothing
         ((fun i ->                                                  // Add new rule if missing         
              if List.contains emptyRule i then i else emptyRule::i), 1);                               
-        ((fun i -> replaceAt (rnd.Next i.Length) addToLeft i), 3);  // Add edge to a left
+        ((fun i -> replaceAt (rnd.Next i.Length) addToLeft i), 2);  // Add edge to a left
         ((fun i -> replaceAt (rnd.Next i.Length) addToRight i), 3); // Add edge to a right
     ]
     let eval = fun (rs) -> 
         let g = applyRules rs seed 0
-        Graph.nodes g |> Set.count |> double
+        let size = Graph.nodes g |> Set.count |> double
+        -abs(20.0 - size)
         
     let sel = fun n (i, s) -> i < n/4
     let breed = fun (a,b) -> a
     
     // Run the algorithm
-    let res = Evolution.train rnd Constants.Generations muts eval sel breed initPop
-    
-    //printfn "%A" <| snd res
+    let (_,res) = Evolution.train rnd Constants.Generations muts eval sel breed initPop
+    let output = res 
+                 |> List.sortByDescending eval 
+                 |> List.take 5 
+                 |> List.map (fun g -> applyRules g seed 0) 
+                 |> List.map (StructureGraph.toLat (StructureGraph.picker rnd))
+                 
+    for lat in output do
+        Lattice.print lat
     
     0
