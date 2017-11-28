@@ -97,7 +97,7 @@ let main argv =
     let breed = fun (a,b) -> a
     
     // Run the algorithm
-    let (_,res) = Evolution.train rnd Constants.Generations muts eval sel breed initPop
+    let (_,res) = Evolution.train rnd muts eval sel breed initPop
     let output = res 
                  |> List.sortByDescending eval 
                  |> List.take 5

@@ -34,10 +34,10 @@ let generation (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluato
                    |> mutate rnd muts
     (List.average (List.map snd res),List.append (List.map fst res) children)
     
-let train (rnd:System.Random) (gens:int) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : double*Population<'a> =
+let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : double*Population<'a> =
     let mutable result = (0.0,pop)
     let mutable stale = 0
-    for g = 0 to gens do
+    for g = 0 to Constants.MaxGenerations do
         if g < Constants.MinGenerations || stale <> Constants.StopWhenStaleFor then
             let res = generation rnd muts eval sel breed <| snd result
             if fst res = fst result then stale <- stale + 1 else stale <- 0
