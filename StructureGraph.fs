@@ -15,8 +15,8 @@ type RuleMatch =
         rotation : int
         //The point in rule space to rotate around
         rulePoint : int * int
-        //The point in matched graph space that corresponds to rulePoint
-        matchPoint : int * int
+        //The delta translation to from rule space to matched graph space
+        pointDelta : int * int
     }
 
 type LatGen = StructGraph -> Lattice.Lat
@@ -107,7 +107,7 @@ let matchRule (rule : StructGraph) (g : StructGraph) : RuleMatch option =
                |> Neighbourhood.toList
                |> List.forall id
 
-    let ruleRoot = Graph.nodes rule |> Set.toList |> List.head
+    let (rx,ry) as ruleRoot = Graph.nodes rule |> Set.toList |> List.head
     let nodes = Graph.nodes g
     let rsAndNodes = Seq.zip (Seq.infinite 0) nodes
                   |> Seq.append (Seq.zip (Seq.infinite 1) nodes)
@@ -115,7 +115,7 @@ let matchRule (rule : StructGraph) (g : StructGraph) : RuleMatch option =
                   |> Seq.append (Seq.zip (Seq.infinite 3) nodes)
     Seq.filter (fun (r,n) -> doesMatch Set.empty r ruleRoot n) rsAndNodes
  |> Seq.tryHead
- |> Option.map (fun (r,n) -> {rotation = r; rulePoint = ruleRoot; matchPoint = n})
+ |> Option.map (fun (r,(x,y)) -> {rotation = r; rulePoint = ruleRoot; pointDelta = (x-rx, y-ry)})
 
  // takes left- and right-hand side of a grammar rule, and returns a tuple (add
  // set, remove set) of edge sets Note: the returned change-sets are in the
@@ -132,32 +132,27 @@ let ruleDelta (leftHand : StructGraph) (rightHand : StructGraph) : (Edge Set * E
     let uniqueToRight = Set.difference rightEdges leftEdges
     (uniqueToRight,uniqueToLeft)
 
-//transforms a rule into the matched graph space, based on the rm parameter
-let ruleInMatchSpace (lh : StructGraph) (rh : StructGraph) (rm : RuleMatch) : StructGraph * StructGraph =
-    let {rotation = rot; rulePoint = ruleRoot; matchPoint = matchRoot} = rm
+let rec rotatePoint (r : int) (center : int*int) ((x,y) as p : int*int) : int*int =
+    if r = 0 then p
+    else rotatePoint (r-1) center (-y,x)
 
-    let rec transform (visited : (int*int) Set) (rule : StructGraph) (newRule : StructGraph) (rp : int*int) (p : int*int) : StructGraph =
-        if Set.contains rp visited then newRule
-        else let rn = Neighbourhood.rotate rot <| nodeNeighbourhood rp rule
-             let adjustedRn = Neighbourhood.map2 (fun rpOpt adjp -> Option.map (fun _ -> adjp) rpOpt) rn (Lattice.neighbourhood p)
-             let rpAndP = List.zip (List.collect Option.toList rn.toList) (List.collect Option.toList adjustedRn.toList)
-             let newRule = List.fold (fun acc e -> Graph.addEdge p e acc) newRule (List.map snd rpAndP)
-             List.fold (fun acc (rPoint,adjPoint) -> transform (Set.add rp visited) rule acc rPoint adjPoint) newRule rpAndP
-    let transform' r = transform Set.empty r Graph.empty ruleRoot matchRoot
-
-    (transform' lh, transform' rh)
+let rec translatePoint ((dx,dy) : int*int) ((x,y) : int*int) : int*int =
+    (x+dx, y+dy)
 
 //applies a rule diff (addset*removeset) to a graph
-let applyDelta ((addSet,removeSet) : (Edge Set) * (Edge Set)) (g : StructGraph) : StructGraph =
-    let graphWithAdded = Set.fold (fun g (p1,p2) -> Graph.addEdge p1 p2 g) g addSet
-    Set.fold (fun g (p1,p2) -> Graph.removeEdge p1 p2 g) graphWithAdded removeSet
+let applyDelta ((addSet,removeSet) : (Edge Set) * (Edge Set)) (rm : RuleMatch) (g : StructGraph) : StructGraph =
+    let transformPoint = rotatePoint rm.rotation rm.rulePoint >> translatePoint rm.pointDelta
+    let transformEdge (p1,p2) = (transformPoint p1, transformPoint p2)
+    let addSet' = Set.map transformEdge addSet
+    let removeSet' = Set.map transformEdge removeSet
+    let graphWithAdded = Set.fold (fun g (p1,p2) -> Graph.addEdge p1 p2 g) g addSet'
+    Set.fold (fun g (p1,p2) -> Graph.removeEdge p1 p2 g) graphWithAdded removeSet'
 
 //maps the rule to the graph space, and applies it to the graph
 let applyRule (leftHand : StructGraph) (rightHand : StructGraph) (g : StructGraph) : StructGraph option =
     match matchRule leftHand g with
     | None -> None
     | Some matching ->
-        let (leftHand',rightHand') = ruleInMatchSpace leftHand rightHand matching
-        let delta = ruleDelta leftHand' rightHand'
-        Some <| applyDelta delta g
+        let delta = ruleDelta leftHand rightHand
+        Some <| applyDelta delta matching g
 
