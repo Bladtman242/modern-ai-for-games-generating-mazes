@@ -64,9 +64,9 @@ let main argv =
     
     
     // Parameters for the algorithm
-    let initPop : Population<Genome> = List.init 10 (fun _ -> [])
+    let initPop : Population<Genome> = List.init 50 (fun _ -> [])
     let muts : (Mutation<Genome>*int) list = [
-        ((fun i -> i), 1);                                          // Nothing
+        ((fun i -> i), 0);                                          // Nothing
         ((fun i ->                                                  // Add new rule if missing         
              if List.contains emptyRule i then i else emptyRule::i), 1);                               
         ((fun i -> replaceAt (rnd.Next i.Length) addToLeft i), 3);  // Add edge to a left
@@ -82,6 +82,6 @@ let main argv =
     // Run the algorithm
     let res = Evolution.train rnd Constants.Generations muts eval sel breed initPop
     
-    printfn "%A" <| snd res
+    //printfn "%A" <| snd res
     
     0

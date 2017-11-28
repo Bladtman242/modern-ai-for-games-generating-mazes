@@ -7,4 +7,4 @@ let BlockSize = 3
 let ApplyLimit = 100
 
 [<Literal>]
-let Generations = 200
+let Generations = 100

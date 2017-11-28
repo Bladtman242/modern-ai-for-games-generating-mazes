@@ -13,7 +13,7 @@ let private trd' ((a,b,c) : 'a*'b*'c) : 'c = c
 
 let private pick (rnd:System.Random) (xs:'a list) : 'a = xs.Item (rnd.Next (xs.Length))
 let private pickWeighted (rnd:System.Random) (xs:('a*int) list) : 'a = 
-    let mutable i = rnd.Next xs.Length
+    let mutable i = rnd.Next (List.sumBy snd xs)
     List.skipWhile (fun (x,w) -> i <- i-w; i >= 0) xs
     |> List.item 0 |> fst
 
@@ -37,5 +37,5 @@ let train (rnd:System.Random) (gens:int) (muts:(Mutation<'a>*int) list) (eval:Ev
     let mutable result = (0.0,pop)
     for g = 0 to gens do
         result <- generation rnd muts eval sel breed <| snd result
-        printfn "Fitness: %f" (fst result)
+        printfn "Fitness in generation %d: %f" g (fst result)
     result
