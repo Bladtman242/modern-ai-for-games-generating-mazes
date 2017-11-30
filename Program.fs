@@ -91,7 +91,7 @@ let main argv =
     let eval = fun (rs) -> 
         let g = applyRules rs seed 0
         let size = Graph.nodes g |> Set.count |> double
-        -abs(30.0 - size)
+        -abs(30.0 - size) - (float (pitfalls g))/size - (Graph.avgDegree g)
         
     let sel = fun n (i, s) -> i < n/4
     let breed = fun (a,b) -> a
