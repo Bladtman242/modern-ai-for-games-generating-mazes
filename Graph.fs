@@ -83,3 +83,5 @@ let avgDistance (g : 'n Graph) : float =
     let size = float <| List.length pairs
     sum / size
 
+let pitfalls (g : 'n Graph) : float =
+    0.0

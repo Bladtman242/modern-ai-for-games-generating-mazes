@@ -7,12 +7,14 @@ let BlockSize = 1
 let ApplyLimit = 200
 
 [<Literal>]
-let MinGenerations = 50
+let MinGenerations = 2
 [<Literal>]
-let MaxGenerations = 5
+let MaxGenerations = 50
 
 [<Literal>]
 let PopulationSize = 100
 
 [<Literal>]
 let StopWhenStaleFor = 1
+[<Literal>]
+let PrintTopResults = 5
