@@ -116,3 +116,4 @@ let pitfalls (g : 'n Graph) : int =
             |> fst 
             |> Set.exists (fun m -> Set.isSubset (g.adjacencies.Item n) (g.adjacencies.Item m))
     g.adjacencies |> Map.toList |> List.map fst |> List.where isPitfall |> List.length
+

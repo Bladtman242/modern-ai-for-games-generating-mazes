@@ -7,7 +7,7 @@ let BlockSize = 1
 let ApplyLimit = 200
 
 [<Literal>]
-let MinGenerations = 2
+let MinGenerations = 3
 [<Literal>]
 let MaxGenerations = 50
 

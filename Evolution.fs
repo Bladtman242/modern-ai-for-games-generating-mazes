@@ -43,4 +43,5 @@ let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>
             if fst res = fst result then stale <- stale + 1 else stale <- 0
             result <- res
             printfn "Fitness in generation %d: %f" g (fst result)
+    printfn "Done"
     result
