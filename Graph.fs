@@ -83,3 +83,22 @@ let avgDistance (g : 'n Graph) : float =
     let size = float <| List.length pairs
     sum / size
 
+let culDeSacs (g : 'n Graph) : ('n*'n list) list =
+    let rec travel a b =
+        let adjs = adjacentTo b g
+                |> Set.remove a
+        match Set.count adjs with
+        | 0 -> [b]
+        | 1 -> b :: travel b (Set.maxElement adjs)
+        | _ -> []
+    Map.filter (fun k adjs -> 1 = Set.count adjs) g.adjacencies
+ |> Map.map (fun k adjs -> travel k (Set.maxElement adjs))
+ |> Map.toList
+
+let culDeSacsCountLength (g : 'n Graph) : (int * int) =
+    let sacs = culDeSacs g
+    let numSacs = List.length sacs
+    let medianLength = List.map (List.length << snd) sacs
+                    |> List.sort
+                    |> List.item (numSacs/2)
+    (numSacs,medianLength)
