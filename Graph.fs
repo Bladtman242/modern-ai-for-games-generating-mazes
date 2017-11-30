@@ -102,5 +102,17 @@ let culDeSacsCountLength (g : 'n Graph) : (int * int) =
                     |> List.sort
                     |> List.item (numSacs/2)
     (numSacs,medianLength)
-let pitfalls (g : 'n Graph) : float =
-    0.0
+    
+let pitfalls (g : 'n Graph) : int =
+    let isPitfall n = 
+        let progress ((ns,hist) : ('n Set * 'n Set)) : ('n Set * 'n Set) =
+            (Set.fold (fun acc n -> 
+                           g.adjacencies.Item n 
+                           |> Set.filter (fun n -> not <| hist.Contains n) 
+                           |> Set.union acc
+                       ) Set.empty ns, Set.union hist ns)
+        progress (Set.ofList [n],Set.empty) 
+            |> progress 
+            |> fst 
+            |> Set.exists (fun m -> Set.isSubset (g.adjacencies.Item n) (g.adjacencies.Item m))
+    g.adjacencies |> Map.toList |> List.map fst |> List.where isPitfall |> List.length
