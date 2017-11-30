@@ -100,7 +100,7 @@ let main argv =
     let (_,res) = Evolution.train rnd muts eval sel breed initPop
     let output = res 
                  |> List.sortByDescending eval 
-                 |> List.take 5
+                 |> List.take Constants.PrintTopResults
                  |> List.map (fun g -> applyRules g seed 0) 
                  |> List.map (StructureGraph.toLat (StructureGraph.picker rnd))
                  

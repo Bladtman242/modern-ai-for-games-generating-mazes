@@ -102,3 +102,5 @@ let culDeSacsCountLength (g : 'n Graph) : (int * int) =
                     |> List.sort
                     |> List.item (numSacs/2)
     (numSacs,medianLength)
+let pitfalls (g : 'n Graph) : float =
+    0.0
