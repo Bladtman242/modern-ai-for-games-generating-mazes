@@ -98,11 +98,12 @@ let culDeSacs (g : 'n Graph) : ('n*'n list) list =
 let culDeSacsCountLength (g : 'n Graph) : (int * int) =
     let sacs = culDeSacs g
     let numSacs = List.length sacs
-    let medianLength = List.map (List.length << snd) sacs
-                    |> List.sort
-                    |> List.item (numSacs/2)
-    (numSacs,medianLength)
-    
+    if numSacs = 0 then (0,0)
+    else let medianLength = List.map (List.length << snd) sacs
+                         |> List.sort
+                         |> List.item (numSacs/2)
+         (numSacs,medianLength)
+
 let pitfalls (g : 'n Graph) : int =
     let isPitfall n = 
         let progress ((ns,hist) : ('n Set * 'n Set)) : ('n Set * 'n Set) =
