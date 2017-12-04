@@ -58,6 +58,7 @@
     <Compile Include="Lattice.fs" />
     <Compile Include="SeqExtensions.fs" />
     <Compile Include="StructureGraph.fs" />
+    <Compile Include="GraphEvolve.fs" />
     <Compile Include="Program.fs" />
     <Content Include="packages.config" />
     <None Include="App.config" />
