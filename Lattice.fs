@@ -107,12 +107,13 @@ let toStrings (lat : Lat) : string list =
         List.reduce (List.map2 (+)) blockStrings
 
     let coords : (int*int) list = Map.toList lat.lat |> List.map fst
-    let minX = List.minBy fst coords |> fst
-    let maxX = List.maxBy fst coords |> fst
-    let minY = List.minBy snd coords |> snd
-    let maxY = List.maxBy snd coords |> snd
-    [ for y in [maxY .. -1 .. minY] do
-        yield! row y (minX,maxX) ]
+    if List.isEmpty coords then []
+    else let minX = List.minBy fst coords |> fst
+         let maxX = List.maxBy fst coords |> fst
+         let minY = List.minBy snd coords |> snd
+         let maxY = List.maxBy snd coords |> snd
+         [ for y in [maxY .. -1 .. minY] do
+             yield! row y (minX,maxX) ]
 
 let print (lat: Lat) = List.iter (printfn "%s") (toStrings lat)
 
