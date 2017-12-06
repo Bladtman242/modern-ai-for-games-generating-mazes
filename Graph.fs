@@ -20,6 +20,8 @@ type Graph<'n when 'n : comparison> =
 // The empty graph. Used to build graphs with the combinators in this module
 let empty : Graph<'n> = { adjacencies = Map.empty }
 
+let private flip f x y = f y x
+
 // Returns the set of nodes that are adjacent to n.
 // Note that if n is not in the graph, the empty set will be returned
 let adjacentTo (n : 'n) (g : Graph<'n>) : Set<'n> =
@@ -83,26 +85,93 @@ let avgDistance (g : 'n Graph) : float =
     let size = float <| List.length pairs
     sum / size
 
-let culDeSacs (g : 'n Graph) : ('n*'n list) list =
-    let rec travel a b =
-        let adjs = adjacentTo b g
-                |> Set.remove a
+// travel will return the walk (node list) from node b to the first node that
+// has more than 2 neighbours. Exclude is used to exclude a neighbour to a, to
+// prevent travel from going backwards (recall that if a is a neighbour to b,
+// then b is a neighbour to a as well), or to determine the travel direction,
+// you wish to travel from a node with more than one neighbour
+let travelExclude (a : 'n) (exclude : 'n Set) (g : 'n Graph) : 'n list =
+    //inner helper function tracks the result-path along as an accumulation
+    //param, so that it is reversed without extra computations
+    //Point of interest; this also makes the function tail recursive
+    let rec innerTravel (a : 'n) (exclude : 'n Set) (acc: 'n list) (g : 'n Graph) : 'n list =
+        let adjs = adjacentTo a g
+                |> (flip Set.difference) exclude
         match Set.count adjs with
-        | 0 -> [b]
-        | 1 -> b :: travel b (Set.maxElement adjs)
-        | _ -> []
+        | 1 -> innerTravel (Set.maxElement adjs) (Set.singleton a) (a :: acc) g
+        | _ -> a :: acc
+    innerTravel a exclude [] g
+
+// convenience wrapper for travelExclude, for the special case where a has
+// exactly one neighbour
+let travel (a : 'n) (g : 'n Graph) : 'n list =
+    travelExclude a Set.empty g
+
+let culDeSacs (g : 'n Graph) : 'n list list =
     Map.filter (fun k adjs -> 1 = Set.count adjs) g.adjacencies
- |> Map.map (fun k adjs -> travel k (Set.maxElement adjs))
+ |> Map.map (fun k adjs -> travel k g) //note that adjs is always the singleton set here!
  |> Map.toList
+ |> List.map snd
 
 let culDeSacsCountLength (g : 'n Graph) : (int * int) =
     let sacs = culDeSacs g
     let numSacs = List.length sacs
     if numSacs = 0 then (0,0)
-    else let medianLength = List.map (List.length << snd) sacs
+    else let medianLength = List.map (List.length) sacs
                          |> List.sort
                          |> List.item (numSacs/2)
          (numSacs,medianLength)
+
+let trees (g : 'n Graph) =
+    //let addPath n path map : Map<'n,(int * 'n list) list> =
+    //    let modified = Map.tryFind n map
+    //                |> Option.map (fun (s,l) -> (s + List.length path,path :: l))
+    //    Map.add n (Option.getOrElse [(List.length path, path)] modified) map
+
+    //let keepTree n t map : Map<'n,(int * 'n list) list> =
+    //    Map.tryFind n map
+    // |> Option.map (fun (s,paths) -> (s + List.append t))
+    // |> Option.getOrElse t
+    // |> fun newPaths -> Map.add n newPaths map
+
+
+    let rec advanceRoots (ts : Map<'n ,(int * ('n list list))>) =
+        let (reachedSet, advances) : ('n Set * ('n * 'n list) list) =
+            Map.fold (fun (reached,advances) root (_, paths) ->
+                        // if some other tree  already advanced to this root, this
+                        // shouldn't also advance
+                        if Set.contains root reached then (reached, advances)
+                        else let examinedChildren : 'n Set = Set.ofList <| List.map (List.item 1) paths
+                             let nonExaminedCount : int = (Set.count (adjacentTo root g)) - (Set.count examinedChildren)
+                             if 1 <> nonExaminedCount then (reached, advances)
+                             else let newPath = travelExclude root examinedChildren g
+                                  let newRoot = List.head newPath
+                                  (Set.add newRoot reached, (root,newPath) :: advances)) (Set.empty,[]) ts
+        let advWithSizes = List.fold (fun m (oldRoot,newPath) ->
+                                        let newRoot = List.head newPath
+                                        let newPathSize = List.length newPath
+                                        let (newTreeSize, newTreePaths) = Map.tryFind newRoot m
+                                                                       |> Option.map (fun (s,paths) -> (s + newPathSize - 2, newPath :: paths))
+                                                                       |> Option.getOrElse (newPathSize - 1, [newPath])
+                                        let oldTreeSize = fst <| Map.find oldRoot ts
+                                        if Map.containsKey newRoot ts && not (Map.containsKey newRoot m)
+                                        then let (existingSize,existingPaths) = Map.find newRoot ts
+                                             Map.add (newRoot) (existingSize + newTreeSize + oldTreeSize - 1, List.append newTreePaths existingPaths) m
+                                        else let newSize = oldTreeSize + newTreeSize
+                                             Map.add newRoot (newSize, newTreePaths) m) Map.empty advances
+        let consolidated : Map<'n,int * 'n list list>= List.fold (fun m (oldRoot, newPath) ->
+                                                                   let newRoot = List.head newPath
+                                                                   Map.remove oldRoot m
+                                                                |> Map.add newRoot (Map.find newRoot advWithSizes)) ts advances
+        if 0 < Set.count reachedSet then advanceRoots advWithSizes
+        else ts
+    let sacsAsTrees = List.fold (fun m path -> let root = List.head path
+                                               Map.tryFind root m
+                                            |> Option.map (fun (s,paths) -> (s + List.length path - 1, path :: paths))
+                                            |> Option.getOrElse (List.length path, [path])
+                                            |> fun v -> Map.add root v m) Map.empty (culDeSacs g)
+    advanceRoots sacsAsTrees
+ |> Map.fold (fun l _ (size,_) -> size :: l) []
 
 let pitfalls (g : 'n Graph) : int =
     let isPitfall n = 
