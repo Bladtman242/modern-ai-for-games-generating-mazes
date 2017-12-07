@@ -14,11 +14,21 @@ let main argv =
             let size = Graph.nodes g |> Set.count |> double
             -abs(30.0-size)
         );
-        ( 1.0, fun g -> 
+        (-1.0, fun g -> 
             let size = Graph.nodes g |> Set.count |> double
             double (pitfalls g)/size
         );
-        (-1.0, fun g -> Graph.avgDegree g)]
+        //(-1.0, fun g -> Graph.avgDegree g);
+        (-1.0, fun g ->
+            let (width,height) = Graph.boundingBoxSize g
+            let avgDist = double <| Graph.avgDistance g
+            abs (avgDist - sqrt (double (width*height)))
+        );
+        (-1.0, fun g ->
+            let (numSacs,sacLen) = Graph.culDeSacsCountLength g
+            let size = Graph.nodes g |> Set.count |> double
+            abs (0.05 - (double numSacs / size)) + abs (3.0 - size)
+        )]
    
     let output = GraphEvolve.run evals
                  

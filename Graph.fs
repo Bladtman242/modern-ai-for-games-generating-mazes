@@ -1,5 +1,6 @@
 module Graph
 open OptionExtensions
+open System.Collections.Generic
 
 // The Graph moudle implements a simple undirected graph.
 // The graph is "persistent", in that operations to alter a graph returns a new
@@ -65,7 +66,7 @@ let avgDegree (g : 'n Graph) : float = Map.toList g.adjacencies
                                     |> fun s -> (float s) / (float (Map.count g.adjacencies))
 
 let distance (a : 'n) (b : 'n) (g : 'n Graph) : int option =
-    let rec dist (visited : 'n Set) (frontier : (int*'n) List) (goal : 'n) : int option =
+    let rec dist (visited : 'n Set) (frontier : (int*'n) list) (goal : 'n) : int option =
         if List.isEmpty frontier then None
         else if Seq.contains (snd <| List.head frontier) visited
              then dist visited (List.tail frontier) goal
@@ -77,13 +78,23 @@ let distance (a : 'n) (b : 'n) (g : 'n Graph) : int option =
     dist Set.empty [(0,a)] b
 
 let avgDistance (g : 'n Graph) : float =
-    let pairs = [ for a in (nodes g) do
-                  for b in (nodes g) do
-                      if a <> b then yield (a,b)]
-    let dists = List.collect (fun (a,b) -> Option.toList <| distance a b g) pairs
-    let sum = float <| List.sum dists
-    let size = float <| List.length pairs
-    sum / size
+    let distancesSum (n : 'n) (g : 'n Graph) : int =
+        let q = new Queue<'n*int> ();
+        adjacentTo n g |> Set.map (fun n -> (n, 1)) |> Set.iter (q.Enqueue)
+        let rec bfs (res : Map<'n,int>) : Map<'n,int> =
+            if 0 = q.Count then res
+            else let (next,len) = q.Dequeue ()
+                 if Map.containsKey next res || n = next then bfs res
+                 else adjacentTo next g |> Seq.map (fun n -> (n,len+1)) |> Seq.iter (q.Enqueue); bfs (Map.add next (len) res)
+
+        bfs Map.empty |> Map.fold (fun s _ d -> d+s) 0
+    let nodes = nodes g
+    let size = Set.count nodes |> double
+    let sum = Set.toList nodes
+           |> List.sumBy (fun n -> distancesSum n g)
+           |> double
+
+    sum / (2.0 * size * (size - 1.0))
 
 // travel will return the walk (node list) from node b to the first node that
 // has more than 2 neighbours. Exclude is used to exclude a neighbour to a, to
@@ -187,3 +198,12 @@ let pitfalls (g : 'n Graph) : int =
             |> Set.exists (fun m -> Set.isSubset (g.adjacencies.Item n) (g.adjacencies.Item m))
     g.adjacencies |> Map.toList |> List.map fst |> List.where isPitfall |> List.length
 
+
+let boundingBoxSize (g : (int*int) Graph) : (int*int) =
+    let coords : (int*int) list = Map.toList g.adjacencies |> List.map fst
+    if List.isEmpty coords then (0,0)
+    else let minX = List.minBy fst coords |> fst
+         let maxX = List.maxBy fst coords |> fst
+         let minY = List.minBy snd coords |> snd
+         let maxY = List.maxBy snd coords |> snd
+         (maxX-minX, maxY-minY)
