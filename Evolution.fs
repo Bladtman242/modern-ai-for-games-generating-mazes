@@ -42,6 +42,8 @@ let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>
             let res = generation rnd muts eval sel breed <| snd result
             if fst res = fst result then stale <- stale + 1 else stale <- 0
             result <- res
-            printfn "Fitness in generation %d: %f" g (fst result)
+            let best = snd result |> List.map eval |> List.max
+            let median = List.item ((List.length (snd result)) / 2) (snd result) |> eval
+            printfn "Fitness in generation %d: average %f, median %f, best %f" g (fst result) median best
     printfn "Done"
     result

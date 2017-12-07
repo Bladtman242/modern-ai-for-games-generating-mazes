@@ -12,7 +12,7 @@ let MinGenerations = 3
 let MaxGenerations = 50
 
 [<Literal>]
-let PopulationSize = 100
+let PopulationSize = 200
 
 [<Literal>]
 let StopWhenStaleFor = 1

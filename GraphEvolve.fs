@@ -87,8 +87,10 @@ let muts  = [
 let eval (es : (double*(StructGraph -> double)) list) (rs : Genome) : double = 
     let g = applyRules rs seed 0
     List.map (fun (f,e) -> f * (e g)) es |> List.sum
-        
-let sel n (i,s) = i < n/4
+    
+    
+let f i n l c = c i (int ((double n) * l))
+let sel (n:int) ((i,s):int*double) : bool = (f i n 0.5 (<)) // || ((f i n 0.8 (>)) && (f i n 0.9 (<)))
 let breed (a,b) = a
                  
 let run evals =
