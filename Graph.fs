@@ -124,14 +124,13 @@ let culDeSacs (g : 'n Graph) : 'n list list =
  |> Map.toList
  |> List.map snd
 
-let culDeSacsCountLength (g : 'n Graph) : (int * int) =
+let culDeSacsCountLengts (g : 'n Graph) : int * int list =
     let sacs = culDeSacs g
     let numSacs = List.length sacs
-    if numSacs = 0 then (0,0)
-    else let medianLength = List.map (List.length) sacs
-                         |> List.sort
-                         |> List.item (numSacs/2)
-         (numSacs,medianLength)
+    if numSacs = 0 then (0,[])
+    else let lengths = List.map (List.length) sacs
+                         |> List.sortDescending
+         (numSacs,lengths)
 
 let trees (g : 'n Graph) =
     //let addPath n path map : Map<'n,(int * 'n list) list> =
@@ -198,6 +197,13 @@ let pitfalls (g : 'n Graph) : int =
             |> Set.exists (fun m -> Set.isSubset (g.adjacencies.Item n) (g.adjacencies.Item m))
     g.adjacencies |> Map.toList |> List.map fst |> List.where isPitfall |> List.length
 
+let treesCountLength (g : 'n Graph) : (int * int) =
+    let treeSizes = trees g
+    let numTrees = List.length treeSizes
+    if numTrees = 0 then (0,0)
+    else let medianLength = List.sort treeSizes
+                         |> List.item (numTrees/2)
+         (numTrees,medianLength)
 
 let boundingBoxSize (g : (int*int) Graph) : (int*int) =
     let coords : (int*int) list = Map.toList g.adjacencies |> List.map fst

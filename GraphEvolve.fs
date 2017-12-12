@@ -84,19 +84,18 @@ let muts  = [
     ((fun i -> replaceAt (rnd.Next i.Length) remFrLeft i), 2);  // Remove edge from a left
     ((fun i -> replaceAt (rnd.Next i.Length) remFrRight i), 3); // Remove edge from a right
 ]
-let eval (es : (double*(StructGraph -> double)) list) (rs : Genome) : double = 
+let eval (es : StructGraph -> (double * double) list) (rs : Genome) : double = 
     let g = applyRules rs seed 0
-    List.map (fun (f,e) -> f * (e g)) es |> List.sum
+    List.map (fun (f,e) -> f * e) (es g) |> List.sum
     
     
 let f i n l c = c i (int ((double n) * l))
 let sel (n:int) ((i,s):int*double) : bool = (f i n 0.5 (<)) // || ((f i n 0.8 (>)) && (f i n 0.9 (<)))
-let breed (a,b) = a
-                 
+let breed (a,b) = if rnd.Next(2) = 0 then a else b
+
 let run evals =
-    let (_,res) = Evolution.train rnd muts (eval evals) sel breed initPop
-    res 
-     |> List.sortByDescending (eval evals) 
-     |> List.take Constants.PrintTopResults
-     |> List.map (fun g -> applyRules g seed 0) 
-     |> List.map (StructureGraph.toLat (StructureGraph.picker rnd))
+    let res : (Genome*double) list = Evolution.train rnd muts (eval evals) sel breed initPop
+    List.sortByDescending snd res
+ |> List.take Constants.PrintTopResults
+ |> List.map (fun (g,_) -> applyRules g seed 0)
+ |> List.map (StructureGraph.toLat (StructureGraph.picker rnd))

@@ -23,27 +23,29 @@ let mutate (rnd:System.Random) (muts:(Mutation<'a>*int) list) (pop:Population<'a
 let evaluate (eval:Evaluator<'a>) (pop:Population<'a>) : ('a*double) list =
     List.map (fun e -> (e,eval e)) pop
     
-let generation (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : double*Population<'a> =
-    let res = mutate rnd muts pop
-              |> evaluate eval
-              |> List.sortBy snd
+let generation (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:('a*double) list) : ('a*double) list =
+    let res = pop
               |> List.mapi (fun i (e,s) -> (e,sel pop.Length (pop.Length-i-1,s),s))
               |> List.filter snd'
               |> List.map (fun (e,_,s) -> (e,s))
     let children = List.init (pop.Length - res.Length) (fun _ -> breed (fst (pick rnd res), fst (pick rnd res)))
                    |> mutate rnd muts
-    (List.average (List.map snd res),List.append (List.map fst res) children)
-    
-let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : double*Population<'a> =
-    let mutable result = (0.0,pop)
+    let newPop = res @ evaluate eval children
+    List.sortBy snd newPop
+
+let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>) (sel:Selector) (breed:Breeder<'a>) (pop:Population<'a>) : ('a*double) list =
+    let mutable result = evaluate eval pop
+    let mutable lastAvg= List.average (List.map snd result)
     let mutable stale = 0
     for g = 0 to Constants.MaxGenerations do
         if g < Constants.MinGenerations || stale <> Constants.StopWhenStaleFor then
-            let res = generation rnd muts eval sel breed <| snd result
-            if fst res = fst result then stale <- stale + 1 else stale <- 0
+            let res = generation rnd muts eval sel breed result
+            let best = snd <| List.last res
+            let median = snd <| List.item ((List.length result) / 2) result
+            let avg = List.average <| List.map snd res
+            if avg = lastAvg then stale <- stale + 1 else stale <- 0
             result <- res
-            let best = snd result |> List.map eval |> List.max
-            let median = List.item ((List.length (snd result)) / 2) (snd result) |> eval
-            printfn "Fitness in generation %d: average %f, median %f, best %f" g (fst result) median best
+            lastAvg <- avg
+            printfn "Fitness in generation %d: average %f, median %f, best %f" g avg median best
     printfn "Done"
     result
