@@ -95,7 +95,9 @@ let medianDistance (g : 'n Graph) : float =
              |> List.collect (fun n -> distancesSum n g)
              |> List.sort
 
-    double <| List.item (List.length dists) dists
+    let len = List.length dists
+    if 0 = len then 0.0
+    else double <| List.item (len/2) dists
 
 // travel will return the walk (node list) from node b to the first node that
 // has more than 2 neighbours. Exclude is used to exclude a neighbour to a, to
