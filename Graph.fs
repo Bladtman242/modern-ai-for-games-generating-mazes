@@ -77,8 +77,8 @@ let distance (a : 'n) (b : 'n) (g : 'n Graph) : int option =
                        dist (Set.add n visited) (List.tail frontier @ neighbours) goal
     dist Set.empty [(0,a)] b
 
-let avgDistance (g : 'n Graph) : float =
-    let distancesSum (n : 'n) (g : 'n Graph) : int =
+let medianDistance (g : 'n Graph) : float =
+    let distancesSum (n : 'n) (g : 'n Graph) : int list =
         let q = new Queue<'n*int> ();
         adjacentTo n g |> Set.map (fun n -> (n, 1)) |> Set.iter (q.Enqueue)
         let rec bfs (res : Map<'n,int>) : Map<'n,int> =
@@ -87,14 +87,15 @@ let avgDistance (g : 'n Graph) : float =
                  if Map.containsKey next res || n = next then bfs res
                  else adjacentTo next g |> Seq.map (fun n -> (n,len+1)) |> Seq.iter (q.Enqueue); bfs (Map.add next (len) res)
 
-        bfs Map.empty |> Map.fold (fun s _ d -> d+s) 0
+        //bfs Map.empty |> Map.fold (fun s _ d -> d+s) 0
+        bfs Map.empty |> Map.toList |> List.map snd
     let nodes = nodes g
     let size = Set.count nodes |> double
-    let sum = Set.toList nodes
-           |> List.sumBy (fun n -> distancesSum n g)
-           |> double
+    let dists = Set.toList nodes
+             |> List.collect (fun n -> distancesSum n g)
+             |> List.sort
 
-    sum / (2.0 * size * (size - 1.0))
+    double <| List.item (List.length dists) dists
 
 // travel will return the walk (node list) from node b to the first node that
 // has more than 2 neighbours. Exclude is used to exclude a neighbour to a, to

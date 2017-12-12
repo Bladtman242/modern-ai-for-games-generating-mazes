@@ -27,9 +27,9 @@ let main argv =
             );
             (-1.0,
                 let (width,height) = Graph.boundingBoxSize g
-                let avgDist = double <| Graph.avgDistance g
+                let medianDist = double <| Graph.medianDistance g
                 let fit = if 0.0 = size then 0.0
-                          else avgDist / (1.0 + sqrt (double (width*height)))
+                          else medianDist / (1.0 + sqrt (double (width*height)))
                 fit
             );
             (-1.0,
