@@ -1,18 +1,18 @@
 module Constants
 
 [<Literal>]
-let BlockSize = 1
+let BlockSize = 3
 
 [<Literal>]
-let ApplyLimit = 200
+let ApplyLimit = 30
 
 [<Literal>]
 let MinGenerations = 3
 [<Literal>]
-let MaxGenerations = 15
+let MaxGenerations = 70
 
 [<Literal>]
-let PopulationSize = 200
+let PopulationSize = 300
 
 [<Literal>]
 let StopWhenStaleFor = 2

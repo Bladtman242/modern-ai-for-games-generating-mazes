@@ -47,5 +47,6 @@ let train (rnd:System.Random) (muts:(Mutation<'a>*int) list) (eval:Evaluator<'a>
             result <- res
             lastAvg <- avg
             printfn "Fitness in generation %d: average %f, median %f, best %f" g avg median best
+            //printfn "%A" <| List.map (fun (grammar,_) -> List.map (fun (l,r) -> (Graph.nodes l|> Set.count,Graph.nodes r|> Set.count)) grammar) (List.skip () res)
     printfn "Done"
     result

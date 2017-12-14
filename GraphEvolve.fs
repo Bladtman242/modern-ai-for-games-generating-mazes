@@ -76,9 +76,8 @@ let private remFrRight rule =
 // Parameters for the algorithm
 let initPop = List.init Constants.PopulationSize (fun _ -> [])
 let muts  = [
-    ((fun i -> i), 0);                                          // Nothing
     ((fun i ->                                                  // Add new rule if missing         
-         if List.contains emptyRule i then i else emptyRule::i), 1);                               
+         if List.contains emptyRule i then replaceAt (rnd.Next i.Length) addToRight i else emptyRule::i), 1);                               
     ((fun i -> replaceAt (rnd.Next i.Length) addToLeft i), 2);  // Add edge to a left
     ((fun i -> replaceAt (rnd.Next i.Length) addToRight i), 3); // Add edge to a right             
     ((fun i -> replaceAt (rnd.Next i.Length) remFrLeft i), 2);  // Remove edge from a left
